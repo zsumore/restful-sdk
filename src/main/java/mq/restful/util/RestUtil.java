@@ -13,7 +13,7 @@ public class RestUtil {
 	private static Map<String, String> contentTypeMap;
 
 	private static Map<String, ObjectMapper> objectMapperMap;
-	
+
 	private static Map<String, ObjectMapper> prettyObjectMapperMap;
 
 	public static String getContentType(String key, String charset) {
@@ -54,8 +54,9 @@ public class RestUtil {
 
 		return mapper;
 	}
-	
+
 	public static ObjectMapper getPrettyObjectMapper(String key) {
+
 		if (null == prettyObjectMapperMap) {
 			prettyObjectMapperMap = new HashMap<String, ObjectMapper>();
 
@@ -64,7 +65,7 @@ public class RestUtil {
 			final CsvMapper csvMapper = new CsvMapper();
 			csvMapper.enable(SerializationFeature.INDENT_OUTPUT);
 			final ObjectMapper jsonMapper = new ObjectMapper();
-		    jsonMapper.enable(SerializationFeature.INDENT_OUTPUT);
+			jsonMapper.enable(SerializationFeature.INDENT_OUTPUT);
 			prettyObjectMapperMap.put("json", jsonMapper);
 			prettyObjectMapperMap.put("csv", csvMapper);
 			prettyObjectMapperMap.put("xml", xmlMapper);

@@ -3,6 +3,7 @@ package mq.restful.web.rest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema.Builder;
@@ -112,6 +114,7 @@ public class ResResource {
 				if (RestUtil.stringNotNullOrEmpty(cacheControl)) {
 					response.addHeader("Cache-Control", cacheControl);
 				}
+				response.addHeader("Access-Control-Allow-Origin", "*");
 
 				RequestSQLParams requestSQLParams = genRequestSQLParams(
 						resName, filter, groupby, orderby, limit, offset);
@@ -161,7 +164,12 @@ public class ResResource {
 
 			}
 
-		} catch (SqlResourceFactoryException e) {
+		} catch (UnsupportedEncodingException e) {
+			writer.print(genThrowableMessage(e));
+			logger.error(e.getMessage());
+		}
+
+		catch (SqlResourceFactoryException e) {
 
 			writer.print(genThrowableMessage(e));
 			logger.error(e.getMessage());
@@ -199,11 +207,20 @@ public class ResResource {
 		// System.out.println(resName);
 		try {
 
+			if (null != filter) {
+				logger.info(filter);
+				logger.info(new String(filter.getBytes("ISO-8859-1"), "UTF-8"));
+
+			}
+
 			// set CHARSET & ContentType
 			response.setCharacterEncoding(config
 					.getProperty(Config.KEY_RESPONSE_CHARSET));
 			response.setContentType(RestUtil.getContentType(output,
 					config.getProperty(Config.KEY_RESPONSE_CHARSET)));
+
+			response.addHeader("Access-Control-Allow-Origin", "*");
+
 			writer = response.getWriter();
 
 			SqlResource sqlResource = sqlResourceFactory
@@ -280,7 +297,115 @@ public class ResResource {
 
 			}
 
+		} catch (UnsupportedEncodingException e) {
+			writer.print(genThrowableMessage(e));
+			logger.error(e.getMessage());
 		} catch (SqlResourceFactoryException e) {
+
+			writer.print(genThrowableMessage(e));
+			logger.error(e.getMessage());
+
+		} catch (SqlResourceException e) {
+
+			writer.print(genThrowableMessage(e));
+			logger.error(e.getMessage());
+
+		} catch (IOException e) {
+			logger.error(genThrowableMessage(e));
+
+		} finally {
+			if (null != writer) {
+				writer.flush();
+				writer.close();
+			}
+		}
+
+	}
+
+	@RequestMapping(value = "/jsonp/{resName:.+}", method = RequestMethod.GET)
+	public void getJsonp(
+			@PathVariable final String resName,
+			@RequestParam(value = "_filter", required = false) String filter,
+			@RequestParam(value = "_orderby", required = false) String orderby,
+			@RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_offset", required = false) Integer offset,
+			@RequestParam(value = "_output", required = false) String output,
+			@RequestParam(value = "_groupby", required = false) String groupby,
+			@RequestParam(value = "callback", required = false) String callback,
+			HttpServletRequest request, HttpServletResponse response) {
+
+		PrintWriter writer = null;
+		// System.out.println(resName);
+		output = "json";
+		if (null == callback) {
+			callback = "success";
+		}
+		try {
+
+			// set CHARSET & ContentType
+			response.setCharacterEncoding(config
+					.getProperty(Config.KEY_RESPONSE_CHARSET));
+			response.setContentType(RestUtil.getContentType(output,
+					config.getProperty(Config.KEY_RESPONSE_CHARSET)));
+			writer = response.getWriter();
+
+			SqlResource sqlResource = sqlResourceFactory
+					.getSqlResource(resName);
+			if (null == sqlResource) {
+				writer.print(genErrorMessage(ResourceNotExist));
+			} else {
+
+				// set Cache-Control
+				String cacheControl = null;
+				if (null != sqlResource.getDefinition().getHttp()
+						&& RestUtil.stringNotNullOrEmpty(sqlResource
+								.getDefinition().getHttp().getResponse()
+								.getCacheControl())) {
+					cacheControl = sqlResource.getDefinition().getHttp()
+							.getResponse().getCacheControl();
+
+				} else {
+					cacheControl = config
+							.getProperty(Config.KEY_HTTP_CACHE_CONTROL);
+
+				}
+				if (RestUtil.stringNotNullOrEmpty(cacheControl)) {
+					response.addHeader("Cache-Control", cacheControl);
+				}
+				response.addHeader("Access-Control-Allow-Origin", "*");
+
+				RequestSQLParams requestSQLParams = genRequestSQLParams(
+						resName, filter, groupby, orderby, limit, offset);
+
+				Object result = getCache().getIfPresent(requestSQLParams);
+
+				if (null == result) {
+
+					try {
+						result = sqlResource.read(requestSQLParams);
+					} catch (DataAccessException | CQLException
+							| FilterToSQLException e) {
+						writer.print(genThrowableMessage(e));
+						logger.error(e.getMessage());
+					}
+
+					if (null != result) {
+						cache.put(requestSQLParams, result);
+					}
+				}
+
+				ObjectMapper mapper = RestUtil.getObjectMapper(output);
+
+				mapper.writeValue(writer, new JSONPObject(callback, result));
+
+			}
+
+		} catch (UnsupportedEncodingException e) {
+			writer.print(genThrowableMessage(e));
+			logger.error(e.getMessage());
+		}
+
+		catch (SqlResourceFactoryException e) {
 
 			writer.print(genThrowableMessage(e));
 			logger.error(e.getMessage());
@@ -645,12 +770,16 @@ public class ResResource {
 	}
 
 	private RequestSQLParams genRequestSQLParams(String resName, String filter,
-			String groupby, String orderby, Integer limit, Integer offset) {
+			String groupby, String orderby, Integer limit, Integer offset)
+			throws UnsupportedEncodingException {
 
 		RequestSQLParams params = new RequestSQLParams();
 		params.setResName(resName);
 
-		params.setFilter(filter);
+		if (null != filter) {
+			params.setFilter(new String(filter.getBytes("ISO-8859-1"), "UTF-8"));
+		}
+
 		params.setOrderby(orderby);
 		params.setGroupby(groupby);
 

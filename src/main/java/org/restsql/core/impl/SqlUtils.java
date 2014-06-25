@@ -15,6 +15,7 @@ import org.opengis.filter.FilterFactory;
 import org.restsql.core.ColumnMetaData;
 import org.restsql.core.Config;
 import org.restsql.core.DBDialect;
+import org.restsql.core.impl.mysql.MysqlDBDialect;
 import org.restsql.core.impl.postgresql.PostgresqlDBDialect;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
@@ -31,7 +32,7 @@ public class SqlUtils {
 	private static final FilterFactory ff = CommonFactoryFinder
 			.getFilterFactory();
 
-	private static DBDialect postgresql, mysql;
+	// private static DBDialect postgresql, mysql;
 
 	public static Object getObjectByColumnLabel(final ColumnMetaData column,
 			final SqlRowSet resultSet) {
@@ -80,11 +81,11 @@ public class SqlUtils {
 		String result = null;
 		if (RestUtil.stringNotNullOrEmpty(filterStr)) {
 			// System.out.println("----------");
-			String filterClause = filterStr.replaceAll("\\+", " ");
+			// String filterClause = filterStr.replaceAll("\\+", " ");
 			// System.out.println("-----2-----");
-			filterClause = filterClause.replaceAll("%20", " ");
+			// filterClause = filterClause.replaceAll("%20", " ");
 			// System.out.println(filterClause);
-			Filter filter = ECQL.toFilter(filterClause, ff);
+			Filter filter = ECQL.toFilter(filterStr, ff);
 
 			// System.out.println(filter.toString());
 
@@ -98,37 +99,30 @@ public class SqlUtils {
 	public static DBDialect getDBDialectByName(String name) {
 
 		if (name.equalsIgnoreCase(Config.POSTGRESQL_DB_DIALECT)) {
-			if (null == postgresql) {
-				postgresql = new PostgresqlDBDialect();
-			}
-			return postgresql;
+
+			return new PostgresqlDBDialect();
+
 		} else if (name.equalsIgnoreCase(Config.MYSQL_DB_DIALECT)) {
-			if (null == mysql) {
-				mysql = new PostgresqlDBDialect();
-			}
-			return mysql;
+
+			return new MysqlDBDialect();
+
 		}
 		return null;
 	}
 
 	public static String buildSQLOrderByClause(String orderByStr) {
-		if (RestUtil.stringNotNullOrEmpty(orderByStr)
-				&& orderByStr.indexOf(":") > 0) {
-			StringBuffer buffer = new StringBuffer("");
-			if (orderByStr.indexOf(";") > 0) {
-				String[] list = orderByStr.trim().split(";");
-				int size = list.length;
-				for (int i = 0; i < size; i++) {
-					if (i != 0) {
-						buffer.append(",");
-					}
-					buffer.append(list[i].replaceAll(":", " "));
-				}
-			} else {
-				buffer.append(orderByStr.replaceAll(":", " "));
-			}
-
-			return buffer.toString();
+		if (RestUtil.stringNotNullOrEmpty(orderByStr)) {
+			return orderByStr;
+			/*
+			 * StringBuffer buffer = new StringBuffer(""); if
+			 * (orderByStr.indexOf(";") > 0) { String[] list =
+			 * orderByStr.trim().split(";"); int size = list.length; for (int i
+			 * = 0; i < size; i++) { if (i != 0) { buffer.append(","); }
+			 * buffer.append(list[i].replaceAll(":", " ")); } } else {
+			 * buffer.append(orderByStr.replaceAll(":", " ")); }
+			 * 
+			 * return buffer.toString();
+			 */
 
 			// if (orderByStr.indexOf(":") != -1) {
 			// StringBuffer buffer = new StringBuffer("");

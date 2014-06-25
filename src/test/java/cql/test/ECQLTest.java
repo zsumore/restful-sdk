@@ -1,5 +1,8 @@
 package cql.test;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 import mq.restful.util.MyFilterToSQL;
 
 import org.geotools.data.jdbc.FilterToSQLException;
@@ -13,7 +16,7 @@ import org.restsql.core.impl.postgresql.PostgresqlFilterToSQL;
 public class ECQLTest {
 
 	public static void main(String[] args) throws CQLException,
-			FilterToSQLException {
+			FilterToSQLException, UnsupportedEncodingException {
 		// TODO Auto-generated method stub
 
 		String filterStr = "to_char(datetime,'HH')='10'";
@@ -30,13 +33,17 @@ public class ECQLTest {
 
 		System.out.println(sql);
 
-		String filterStr2 = "date_part('HH',datetime)=10";
+		String filterStr2 = "bb = 100 and name like '南海%'";
 
 		Filter filter2 = ECQL.toFilter(filterStr2, ff);
 
 		String sql2 = v.encodeToString(filter2);
 
 		System.out.println(sql2);
+		
+		String vString="åæµ·";
+		
+		System.out.println(URLDecoder.decode(URLDecoder.decode(vString, "UTF-8"), "UTF-8"));
 
 	}
 

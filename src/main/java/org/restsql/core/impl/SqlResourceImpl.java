@@ -165,7 +165,26 @@ public class SqlResourceImpl implements SqlResource {
 		Object value = SqlUtils.getObjectByColumnNumber(columnData, resultSet);
 		Format formatter = definition.getFormatter(column);
 		if (value == null) {
-			objectNode.putNull(column);
+			if (null != definition.getNullValue(column)) {
+				if (definition.getAttributeType(column).equalsIgnoreCase(
+						"Numeric")) {
+					if(definition.getNullValue(column).contains(".")){
+					objectNode.put(column,
+							Double.valueOf(definition.getNullValue(column)));
+					}else{
+						objectNode.put(column,
+								Long.valueOf(definition.getNullValue(column)));
+					}
+				} else if (definition.getAttributeType(column)
+						.equalsIgnoreCase("String")) {
+					objectNode.put(column, definition.getNullValue(column));
+				} else {
+					objectNode.putNull(column);
+				}
+			} else {
+				objectNode.putNull(column);
+			}
+
 		} else if (value instanceof Integer) {
 			if (null != formatter) {
 				objectNode.put(column,

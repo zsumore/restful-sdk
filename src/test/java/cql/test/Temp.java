@@ -14,8 +14,12 @@ public class Temp {
 
 	public static void main(String[] args) throws CQLException,
 			FilterToSQLException {
+		
+		String s="11.11";
+		
+		System.out.println(s.contains("."));
 		// TODO Auto-generated method stub
-		String main = "dd abc GROUP BY a b ";
+		/*String main = "dd abc GROUP BY a b ";
 		int index = main.indexOf("GROUP BY");
 
 		String s1 = main.substring(0, index);
@@ -34,7 +38,7 @@ public class Temp {
 		// System.out.println(filterClause);
 		Filter filter = ECQL.toFilter(filterStr);
 
-		/*
+		
 		 * System.out.println(filter.getClass());
 		 * System.out.println(filter.toString());
 		 * System.out.println(filter.getExpression1().getClass());
@@ -50,12 +54,12 @@ public class Temp {
 		 * 
 		 * System.out.println(l.getType());
 		 * System.out.println(l.getValue().toString());
-		 */
+		 
 
 		MyFilterToSQL vistor = new MyFilterToSQL();
-		String sql = vistor.encodeToString(filter);
+		String sql = vistor.encodeToString(filter);*/
 
-		System.out.println(sql);
+		//System.out.println(sql);
 
 	}
 

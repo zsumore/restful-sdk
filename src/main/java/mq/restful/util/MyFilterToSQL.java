@@ -25,6 +25,7 @@ import org.opengis.filter.temporal.Ends;
 import org.opengis.filter.temporal.TContains;
 import org.opengis.filter.temporal.TEquals;
 
+@SuppressWarnings("deprecation")
 public class MyFilterToSQL extends FilterToSQL {
 
 	/**

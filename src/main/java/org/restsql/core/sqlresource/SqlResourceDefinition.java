@@ -86,6 +86,9 @@ public class SqlResourceDefinition {
 	@XmlTransient
 	private Map<String, String> replacementMap;
 
+	@XmlTransient
+	private Map<String, String> nullValueMap;
+
 	/**
 	 * Gets the value of the query property.
 	 * 
@@ -256,6 +259,39 @@ public class SqlResourceDefinition {
 		}
 
 		return replacementMap.get(key);
+	}
+
+	public String getAttributeType(String key) {
+		ListMultimap<String, ValidatedAttribute> map = getValidatedAttributeMap();
+		List<ValidatedAttribute> vl = map.get(key);
+		if (null != vl && vl.size() > 0) {
+			return vl.get(0).getType();
+		}
+
+		return null;
+	}
+
+	public String getNullValue(String key) {
+
+		if (null == nullValueMap) {
+			nullValueMap = new HashMap<String, String>();
+
+			ListMultimap<String, ValidatedAttribute> map = getValidatedAttributeMap();
+			Set<String> keySet = map.keySet();
+			for (String k : keySet) {
+				List<ValidatedAttribute> vl = map.get(k);
+
+				for (ValidatedAttribute va : vl) {
+
+					if (va.getNullValue() != null) {
+						nullValueMap.put(k, va.getNullValue());
+					}
+				}
+			}
+
+		}
+
+		return nullValueMap.get(key);
 	}
 
 	public String getRegex(String key) {
