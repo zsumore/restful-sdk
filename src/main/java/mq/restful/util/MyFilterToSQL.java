@@ -77,7 +77,6 @@ public class MyFilterToSQL extends FilterToSQL {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	protected FilterCapabilities createFilterCapabilities() {
 		 FilterCapabilities capabilities = new FilterCapabilities();
