@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.geotools.data.jdbc.FilterToSQLException;
 import org.geotools.filter.text.cql2.CQLException;
@@ -28,15 +27,13 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 
 public class SqlResourceImpl implements SqlResource {
 
 	private final SqlResourceDefinition definition;
 	private final SqlResourceMetaData metaData;
 	private final String name;
-	private Cache<RequestSQLParams, String> cache;
+	// private Cache<RequestSQLParams, String> cache;
 	private final ObjectMapper objectMapper;
 
 	private SqlResourceFactory sqlResourceFactory;
@@ -54,18 +51,13 @@ public class SqlResourceImpl implements SqlResource {
 
 		logger = LoggerFactory.getLogger("[" + name + "]");
 
-		cache = CacheBuilder
-				.newBuilder()
-				.maximumSize(
-						Integer.valueOf(this.sqlResourceFactory.getConfig()
-								.getProperty(
-										Config.KEY_CACHE_SQL_MAX_CACHE_SIZE)))
-				.expireAfterWrite(
-						Long.valueOf(this.sqlResourceFactory
-								.getConfig()
-								.getProperty(
-										Config.KEY_CACHE_SQL_EXPIRE_AFTER_WRITE)),
-						TimeUnit.SECONDS).build();
+		/*
+		 * cache = CacheBuilder .newBuilder() .maximumSize(
+		 * Integer.valueOf(this.sqlResourceFactory.getConfig() .getProperty(
+		 * Config.KEY_CACHE_SQL_MAX_CACHE_SIZE))) .expireAfterWrite(
+		 * Long.valueOf(this.sqlResourceFactory .getConfig() .getProperty(
+		 * Config.KEY_CACHE_SQL_EXPIRE_AFTER_WRITE)), TimeUnit.SECONDS).build();
+		 */
 
 		objectMapper = new ObjectMapper();
 
@@ -90,29 +82,30 @@ public class SqlResourceImpl implements SqlResource {
 	public String buildSQL(RequestSQLParams params) throws CQLException,
 			FilterToSQLException {
 
-		String sql = cache.getIfPresent(params);
-		if (null == sql) {
-			// logger.debug(SqlUtils.buildSQLFilterClause(params.getFilter()));
-			SqlStruct struct = new SqlStruct(this.definition.getQuery()
-					.getValue(), SqlUtils.buildSQLFilterClause(params
-					.getFilter(), this.sqlResourceFactory.getConfig()
-					.getProperty(Config.KEY_DATABASE_TYPE)));
+		// String sql = cache.getIfPresent(params);
+		// if (null == sql) {
+		// logger.debug(SqlUtils.buildSQLFilterClause(params.getFilter()));
+		SqlStruct struct = new SqlStruct(this.definition.getQuery().getValue(),
+				SqlUtils.buildSQLFilterClause(
+						params.getFilter(),
+						this.sqlResourceFactory.getConfig().getProperty(
+								Config.KEY_DATABASE_TYPE)));
 
-			if (null != params.getLimit())
-				struct.setLimit(params.getLimit());
+		if (null != params.getLimit())
+			struct.setLimit(params.getLimit());
 
-			if (null != params.getOffset())
-				struct.setOffset(params.getOffset());
+		if (null != params.getOffset())
+			struct.setOffset(params.getOffset());
 
-			struct.setOrderByClause(SqlUtils.buildSQLOrderByClause(params
-					.getOrderby()));
+		struct.setOrderByClause(SqlUtils.buildSQLOrderByClause(params
+				.getOrderby()));
 
-			struct.setGroupByClause(params.getGroupby());
+		struct.setGroupByClause(params.getGroupby());
 
-			sql = struct.getStructSql();
+		String sql = struct.getStructSql();
 
-			cache.put(params, sql);
-		}
+		// cache.put(params, sql);
+		// }
 		logger.info(sql);
 		return sql;
 	}
@@ -168,10 +161,11 @@ public class SqlResourceImpl implements SqlResource {
 			if (null != definition.getNullValue(column)) {
 				if (definition.getAttributeType(column).equalsIgnoreCase(
 						"Numeric")) {
-					if(definition.getNullValue(column).contains(".")){
-					objectNode.put(column,
-							Double.valueOf(definition.getNullValue(column)));
-					}else{
+					if (definition.getNullValue(column).contains(".")) {
+						objectNode
+								.put(column, Double.valueOf(definition
+										.getNullValue(column)));
+					} else {
 						objectNode.put(column,
 								Long.valueOf(definition.getNullValue(column)));
 					}
