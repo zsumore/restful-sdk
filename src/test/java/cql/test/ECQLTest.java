@@ -19,7 +19,7 @@ public class ECQLTest {
 			FilterToSQLException, UnsupportedEncodingException {
 		// TODO Auto-generated method stub
 
-		String filterStr = "to_char(datetime,'HH')='10'";
+		String filterStr = "'59288' = station_id";
 
 		MyFilterToSQL vistor = new MyFilterToSQL();
 
@@ -33,17 +33,7 @@ public class ECQLTest {
 
 		System.out.println(sql);
 
-		String filterStr2 = "bb = 100 and name like '南海%'";
-
-		Filter filter2 = ECQL.toFilter(filterStr2, ff);
-
-		String sql2 = v.encodeToString(filter2);
-
-		System.out.println(sql2);
 		
-		String vString="åæµ·";
-		
-		System.out.println(URLDecoder.decode(URLDecoder.decode(vString, "UTF-8"), "UTF-8"));
 
 	}
 

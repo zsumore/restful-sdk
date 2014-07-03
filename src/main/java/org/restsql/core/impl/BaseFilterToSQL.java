@@ -16,7 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.data.jdbc.FilterToSQLException;
-
 import org.geotools.data.jdbc.fidmapper.FIDMapper;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
@@ -715,6 +714,8 @@ public class BaseFilterToSQL implements SqlVisitor {
 
 		Expression left = filter.getExpression1();
 		Expression right = filter.getExpression2();
+		
+		//System.out.println(right.toString());
 		Class leftContext = null, rightContext = null;
 		if (left instanceof PropertyName) {
 			// aha! It's a propertyname, we should get the class and pass it in
@@ -723,6 +724,7 @@ public class BaseFilterToSQL implements SqlVisitor {
 					.evaluate(featureType);
 			if (attType != null) {
 				rightContext = attType.getType().getBinding();
+				
 			}
 		} else if (left instanceof Function) {
 			// check for a function return type
@@ -758,6 +760,7 @@ public class BaseFilterToSQL implements SqlVisitor {
 				}
 			}
 		}
+		//System.out.println(matchCase);
 
 		String type = (String) extraData;
 
@@ -765,16 +768,21 @@ public class BaseFilterToSQL implements SqlVisitor {
 			if (matchCase) {
 				if (leftContext != null && isBinaryExpression(left)) {
 					writeBinaryExpression(left, leftContext);
+					
+
 				} else {
 					left.accept(this, leftContext);
+					
 				}
 
 				out.write(" " + type + " ");
 
 				if (rightContext != null && isBinaryExpression(right)) {
 					writeBinaryExpression(right, rightContext);
+					
 				} else {
 					right.accept(this, rightContext);
+					
 				}
 			} else {
 				// wrap both sides in "lower"
@@ -1361,17 +1369,22 @@ public class BaseFilterToSQL implements SqlVisitor {
 	public Object visit(Literal expression, Object context)
 			throws RuntimeException {
 		LOGGER.finer("exporting LiteralExpression");
-
+		//System.out.println(expression.getValue().getClass());
 		// type to convert the literal to
 		Class target = null;
 		if (context instanceof Class) {
 			target = (Class) context;
+			
+		}
+		if(null==target&&null!=expression){
+			
+			target=expression.getValue().getClass();
 		}
 
 		try {
 			// evaluate the expression
 			Object literal = evaluateLiteral(expression, target);
-
+			//System.out.println(literal.getClass());
 			// handle geometry case
 			if (literal instanceof Geometry) {
 				// call this method for backwards compatibility with subclasses
@@ -1380,7 +1393,9 @@ public class BaseFilterToSQL implements SqlVisitor {
 				// write out the literal allowing subclasses to override this
 				// behaviour (for writing out dates and the like using the BDMS
 				// custom functions)
+				//System.out.println(literal.getClass());
 				writeLiteral(literal);
+				
 			}
 
 		} catch (IOException e) {
@@ -1406,6 +1421,7 @@ public class BaseFilterToSQL implements SqlVisitor {
 				}
 			} else {
 				literal = expression.evaluate(null, target);
+				
 			}
 		}
 
@@ -1454,6 +1470,7 @@ public class BaseFilterToSQL implements SqlVisitor {
 			out.write("NULL");
 		} else if (literal instanceof Number || literal instanceof Boolean) {
 			out.write(String.valueOf(literal));
+			
 		} else if (literal instanceof Date) {
 			String valueDate = getDateFormat().format(literal).replaceAll("'",
 					"''");
