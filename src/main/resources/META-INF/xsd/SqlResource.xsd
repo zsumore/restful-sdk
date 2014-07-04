@@ -100,7 +100,7 @@
 	<complexType name="HttpConfig">
 		<sequence>
 			<element name="response" type="rs:HttpResponse" maxOccurs="1"
-				minOccurs="0"></element>
+				minOccurs="1"></element>
 		</sequence>
 	</complexType>
 	<complexType name="HttpResponse">
@@ -112,6 +112,10 @@
 					{cache-directive}, ...
 				</documentation>
 			</annotation>
+		</attribute>
+		<attribute name="accessControl" type="string" use="optional">
+		</attribute>
+		<attribute name="csvUseHeader" type="boolean" use="optional">
 		</attribute>
 	</complexType>
 </schema>

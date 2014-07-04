@@ -33,7 +33,6 @@ public class SqlResourceImpl implements SqlResource {
 	private final SqlResourceDefinition definition;
 	private final SqlResourceMetaData metaData;
 	private final String name;
-	// private Cache<RequestSQLParams, String> cache;
 	private final ObjectMapper objectMapper;
 
 	private SqlResourceFactory sqlResourceFactory;
@@ -50,14 +49,6 @@ public class SqlResourceImpl implements SqlResource {
 		this.sqlResourceFactory = factory;
 
 		logger = LoggerFactory.getLogger("[" + name + "]");
-
-		/*
-		 * cache = CacheBuilder .newBuilder() .maximumSize(
-		 * Integer.valueOf(this.sqlResourceFactory.getConfig() .getProperty(
-		 * Config.KEY_CACHE_SQL_MAX_CACHE_SIZE))) .expireAfterWrite(
-		 * Long.valueOf(this.sqlResourceFactory .getConfig() .getProperty(
-		 * Config.KEY_CACHE_SQL_EXPIRE_AFTER_WRITE)), TimeUnit.SECONDS).build();
-		 */
 
 		objectMapper = new ObjectMapper();
 
@@ -82,9 +73,6 @@ public class SqlResourceImpl implements SqlResource {
 	public String buildSQL(RequestSQLParams params) throws CQLException,
 			FilterToSQLException {
 
-		// String sql = cache.getIfPresent(params);
-		// if (null == sql) {
-		// logger.debug(SqlUtils.buildSQLFilterClause(params.getFilter()));
 		SqlStruct struct = new SqlStruct(this.definition.getQuery().getValue(),
 				SqlUtils.buildSQLFilterClause(
 						params.getFilter(),
@@ -104,8 +92,6 @@ public class SqlResourceImpl implements SqlResource {
 
 		String sql = struct.getStructSql();
 
-		// cache.put(params, sql);
-		// }
 		logger.info(sql);
 		return sql;
 	}
@@ -189,9 +175,7 @@ public class SqlResourceImpl implements SqlResource {
 		} else if (value instanceof String) {
 			if (null != definition.getReplacement(column)
 					&& null != definition.getRegex(column)) {
-				// System.out.println(column);
-				// System.out.println(definition.getReplacement(column));
-				// System.out.println(definition.getRegex(column));
+
 				objectNode.put(column, ((String) value).replaceAll(
 						definition.getRegex(column),
 						definition.getReplacement(column)));
@@ -332,7 +316,8 @@ public class SqlResourceImpl implements SqlResource {
 	}
 
 	private String getChildRowsName() {
-		return metaData.getChild().getTableAlias() + "s";
+		return new StringBuilder(metaData.getChild().getTableAlias()).append(
+				"s").toString();
 	}
 
 	@Override

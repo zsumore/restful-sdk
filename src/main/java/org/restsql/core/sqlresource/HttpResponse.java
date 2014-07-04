@@ -5,7 +5,6 @@
 // Generated on: 2012.10.07 at 09:30:00 AM EDT 
 //
 
-
 package org.restsql.core.sqlresource;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,11 +12,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for HttpResponse complex type.
+ * <p>
+ * Java class for HttpResponse complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType name="HttpResponse">
@@ -35,31 +36,50 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "HttpResponse")
 public class HttpResponse {
 
-    @XmlAttribute(name = "cacheControl")
-    protected String cacheControl;
+	@XmlAttribute(name = "cacheControl")
+	protected String cacheControl;
 
-    /**
-     * Gets the value of the cacheControl property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCacheControl() {
-        return cacheControl;
-    }
+	@XmlAttribute(name = "accessControl")
+	protected String accessControl;
 
-    /**
-     * Sets the value of the cacheControl property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCacheControl(String value) {
-        this.cacheControl = value;
-    }
+	@XmlAttribute(name = "csvUseHeader")
+	protected Boolean csvUseHeader;
+
+	/**
+	 * Gets the value of the cacheControl property.
+	 * 
+	 * @return possible object is {@link String }
+	 * 
+	 */
+	public String getCacheControl() {
+		return cacheControl;
+	}
+
+	/**
+	 * Sets the value of the cacheControl property.
+	 * 
+	 * @param value
+	 *            allowed object is {@link String }
+	 * 
+	 */
+	public void setCacheControl(String value) {
+		this.cacheControl = value;
+	}
+
+	public String getAccessControl() {
+		return accessControl;
+	}
+
+	public void setAccessControl(String accessControl) {
+		this.accessControl = accessControl;
+	}
+
+	public Boolean getCsvUseHeader() {
+		return csvUseHeader;
+	}
+
+	public void setCsvUseHeader(Boolean csvUseHeader) {
+		this.csvUseHeader = csvUseHeader;
+	}
 
 }

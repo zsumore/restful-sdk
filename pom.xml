@@ -229,6 +229,21 @@
 					<groupId>javax.media</groupId>
 					<artifactId>jai_core</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>postgresql</groupId>
+					<artifactId>postgresql</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools.jdbc</groupId>
+			<artifactId>gt-jdbc-mysql</artifactId>
+			<version>${geotools.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.media</groupId>
+					<artifactId>jai_core</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<!-- other -->

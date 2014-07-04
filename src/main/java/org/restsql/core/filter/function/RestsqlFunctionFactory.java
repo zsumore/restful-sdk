@@ -1,4 +1,4 @@
-package org.restsql.core.impl.postgresql;
+package org.restsql.core.filter.function;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,11 +11,8 @@ import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
-import org.restsql.core.filter.function.FilterFunction_date_part;
-import org.restsql.core.filter.function.FilterFunction_date_trunc;
-import org.restsql.core.filter.function.FilterFunction_to_char;
 
-public class PostgresqlFunctionFactory implements FunctionFactory {
+public class RestsqlFunctionFactory implements FunctionFactory {
 
 	@Override
 	public List<FunctionName> getFunctionNames() {
@@ -24,6 +21,7 @@ public class PostgresqlFunctionFactory implements FunctionFactory {
 		functionList.add(FilterFunction_date_part.NAME);
 		functionList.add(FilterFunction_date_trunc.NAME);
 		functionList.add(FilterFunction_to_char.NAME);
+		functionList.add(FilterFunction_date_format.NAME);
 		return Collections.unmodifiableList(functionList);
 	}
 

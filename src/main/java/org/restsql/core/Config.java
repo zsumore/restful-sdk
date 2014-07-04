@@ -21,38 +21,44 @@ public class Config {
 	public static final String DEFAULT_SQLRESOURCES_DIR = "/sqlresources";
 	public static final String DEFAULT_DATABASE_TYPE = "postgresql";
 	public static final String DEFAULT_HTTP_CACHE_CONTROL = "no-cache, no-transform";
+	public static final String DEFAULT_HTTP_ACCESS_CONTROL = "*";
 
 	public static final String DEFAULT_RESPONSE_SQL_LIMIT = "500";
 	public static final String DEFAULT_RESPONSE_SQL_MAX_LIMIT = "5000";
 	public static final String DEFAULT_RESPONSE_SQL_OFFSET = "-1";
+	
 	public static final String DEFAULT_RESPONSE_CSV_LINE_SEPATATOR = "\n";
 	public static final String DEFAULT_RESPONSE_CSV_COLUMN_SEPATATOR = ",";
+	public static final String DEFAULT_RESPONSE_CSV_USE_HEADER = "false";
+	
 	public static final String DEFAULT_RESPONSE_OUTPUT_TYPE = "json";
 	public static final String DEFAULT_RESPONSE_CHARSET = "UTF-8";
 	public static final String DEFAULT_RESPONSE_ERROR_PREFIX = "[Error]";
 	public static final String DEFAULT_RESPONSE_SUCCESS_PREFIX = "[Success]";
 
-	public static final String DEFAULT_CACHE_SQL_MAX_CACHE_SIZE = "1000";
-	public static final String DEFAULT_CACHE_SQL_EXPIRE_AFTER_WRITE = "3600";
+	
 	public static final String DEFAULT_CACHE_RESULT_MAX_CACHE_SIZE = "1000";
 	public static final String DEFAULT_CACHE_RESULT_EXPIRE_AFTER_WRITE = "60";
 
 	public static final String KEY_SQLRESOURCES_DIR = "sqlresources.dir";
 	public static final String KEY_DATABASE_TYPE = "database.type";
 	public static final String KEY_HTTP_CACHE_CONTROL = "http.response.cacheControl";
+	public static final String KEY_HTTP_ACCESS_CONTROL = "http.response.accessControl";
 
 	public static final String KEY_RESPONSE_SQL_LIMIT = "response.sql.limit";
 	public static final String KEY_RESPONSE_SQL_MAX_LIMIT = "response.sql.maxLimit";
 	public static final String KEY_RESPONSE_SQL_OFFSET = "response.sql.offset";
+	
 	public static final String KEY_RESPONSE_CSV_LINE_SEPATATOR = "response.cvs.lineSeparator";
 	public static final String KEY_RESPONSE_CSV_COLUMN_SEPATATOR = "response.cvs.columnSeparator";
+	public static final String KEY_RESPONSE_CSV_USE_HEADER = "response.cvs.useHeader";
+	
 	public static final String KEY_RESPONSE_OUTPUT_TYPE = "response.outputType";
 	public static final String KEY_RESPONSE_CHARSET = "response.charset";
 	public static final String KEY_RESPONSE_ERROR_PREFIX = "response.error.prefix";
 	public static final String KEY_RESPONSE_SUCCESS_PREFIX = "response.success.prefix";
 
-	public static final String KEY_CACHE_SQL_MAX_CACHE_SIZE = "cache.sql.maxCacheSize";
-	public static final String KEY_CACHE_SQL_EXPIRE_AFTER_WRITE = "cache.sql.expireAfterWrite";
+
 	public static final String KEY_CACHE_RESULT_MAX_CACHE_SIZE = "cache.result.maxCacheSize";
 	public static final String KEY_CACHE_RESULT_EXPIRE_AFTER_WRITE = "cache.result.expireAfterWrite";
 

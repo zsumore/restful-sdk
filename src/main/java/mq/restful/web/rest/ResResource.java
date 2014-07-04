@@ -64,6 +64,7 @@ public class ResResource {
 	private Cache<RequestSQLParams, Object> cache;
 
 	JAXBContext context;
+
 	Marshaller marshaller;
 
 	ObjectMapper mapper;
@@ -83,38 +84,16 @@ public class ResResource {
 		PrintWriter writer = null;
 		// System.out.println(resName);
 		try {
-
-			// set CHARSET & ContentType
-			response.setCharacterEncoding(config
-					.getProperty(Config.KEY_RESPONSE_CHARSET));
-			response.setContentType(RestUtil.getContentType(output,
-					config.getProperty(Config.KEY_RESPONSE_CHARSET)));
 			writer = response.getWriter();
 
 			SqlResource sqlResource = sqlResourceFactory
 					.getSqlResource(resName);
+
+			processResponse(response, sqlResource, output);
+
 			if (null == sqlResource) {
 				writer.print(genErrorMessage(ResourceNotExist));
 			} else {
-
-				// set Cache-Control
-				String cacheControl = null;
-				if (null != sqlResource.getDefinition().getHttp()
-						&& RestUtil.stringNotNullOrEmpty(sqlResource
-								.getDefinition().getHttp().getResponse()
-								.getCacheControl())) {
-					cacheControl = sqlResource.getDefinition().getHttp()
-							.getResponse().getCacheControl();
-
-				} else {
-					cacheControl = config
-							.getProperty(Config.KEY_HTTP_CACHE_CONTROL);
-
-				}
-				if (RestUtil.stringNotNullOrEmpty(cacheControl)) {
-					response.addHeader("Cache-Control", cacheControl);
-				}
-				response.addHeader("Access-Control-Allow-Origin", "*");
 
 				RequestSQLParams requestSQLParams = genRequestSQLParams(
 						resName, filter, groupby, orderby, limit, offset);
@@ -127,7 +106,7 @@ public class ResResource {
 						result = sqlResource.read(requestSQLParams);
 					} catch (DataAccessException | CQLException
 							| FilterToSQLException e) {
-						writer.print(genThrowableMessage(e));
+						writer.print(genErrorMessage(e.getMessage()));
 						logger.error(e.getMessage());
 					}
 
@@ -153,6 +132,9 @@ public class ResResource {
 										config.getProperty(
 												Config.KEY_RESPONSE_CSV_COLUMN_SEPATATOR)
 												.trim().charAt(0));
+						if (csvUseHeader(sqlResource)) {
+							schema = schema.withHeader();
+						}
 						((CsvMapper) mapper).writer(schema).writeValue(writer,
 								result);
 					} else {
@@ -165,22 +147,22 @@ public class ResResource {
 			}
 
 		} catch (UnsupportedEncodingException e) {
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 		}
 
 		catch (SqlResourceFactoryException e) {
 
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 
 		} catch (SqlResourceException e) {
 
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 
 		} catch (IOException e) {
-			logger.error(genThrowableMessage(e));
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != writer) {
@@ -204,48 +186,19 @@ public class ResResource {
 			HttpServletRequest request, HttpServletResponse response) {
 
 		PrintWriter writer = null;
-		// System.out.println(resName);
+
 		try {
-
-			if (null != filter) {
-				logger.info(filter);
-				logger.info(new String(filter.getBytes("ISO-8859-1"), "UTF-8"));
-
-			}
-
-			// set CHARSET & ContentType
-			response.setCharacterEncoding(config
-					.getProperty(Config.KEY_RESPONSE_CHARSET));
-			response.setContentType(RestUtil.getContentType(output,
-					config.getProperty(Config.KEY_RESPONSE_CHARSET)));
-
-			response.addHeader("Access-Control-Allow-Origin", "*");
 
 			writer = response.getWriter();
 
 			SqlResource sqlResource = sqlResourceFactory
 					.getSqlResource(resName);
+
+			processResponse(response, sqlResource, output);
+
 			if (null == sqlResource) {
 				writer.print(genErrorMessage(ResourceNotExist));
 			} else {
-
-				// set Cache-Control
-				String cacheControl = null;
-				if (null != sqlResource.getDefinition().getHttp()
-						&& RestUtil.stringNotNullOrEmpty(sqlResource
-								.getDefinition().getHttp().getResponse()
-								.getCacheControl())) {
-					cacheControl = sqlResource.getDefinition().getHttp()
-							.getResponse().getCacheControl();
-
-				} else {
-					cacheControl = config
-							.getProperty(Config.KEY_HTTP_CACHE_CONTROL);
-
-				}
-				if (RestUtil.stringNotNullOrEmpty(cacheControl)) {
-					response.addHeader("Cache-Control", cacheControl);
-				}
 
 				RequestSQLParams requestSQLParams = genRequestSQLParams(
 						resName, filter, groupby, orderby, limit, offset);
@@ -258,7 +211,7 @@ public class ResResource {
 						result = sqlResource.read(requestSQLParams);
 					} catch (DataAccessException | CQLException
 							| FilterToSQLException e) {
-						writer.print(genThrowableMessage(e));
+						writer.print(genErrorMessage(e.getMessage()));
 						logger.error(e.getMessage());
 					}
 
@@ -284,6 +237,9 @@ public class ResResource {
 										config.getProperty(
 												Config.KEY_RESPONSE_CSV_COLUMN_SEPATATOR)
 												.trim().charAt(0));
+						if (csvUseHeader(sqlResource)) {
+							schema = schema.withHeader();
+						}
 						((CsvMapper) mapper).writer(schema).writeValue(writer,
 								result);
 					} else {
@@ -298,20 +254,20 @@ public class ResResource {
 			}
 
 		} catch (UnsupportedEncodingException e) {
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 		} catch (SqlResourceFactoryException e) {
 
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 
 		} catch (SqlResourceException e) {
 
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 
 		} catch (IOException e) {
-			logger.error(genThrowableMessage(e));
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != writer) {
@@ -342,37 +298,16 @@ public class ResResource {
 		}
 		try {
 
-			// set CHARSET & ContentType
-			response.setCharacterEncoding(config
-					.getProperty(Config.KEY_RESPONSE_CHARSET));
-			response.setContentType(RestUtil.getContentType(output,
-					config.getProperty(Config.KEY_RESPONSE_CHARSET)));
 			writer = response.getWriter();
 
 			SqlResource sqlResource = sqlResourceFactory
 					.getSqlResource(resName);
+
+			processResponse(response, sqlResource, output);
+
 			if (null == sqlResource) {
 				writer.print(genErrorMessage(ResourceNotExist));
 			} else {
-
-				// set Cache-Control
-				String cacheControl = null;
-				if (null != sqlResource.getDefinition().getHttp()
-						&& RestUtil.stringNotNullOrEmpty(sqlResource
-								.getDefinition().getHttp().getResponse()
-								.getCacheControl())) {
-					cacheControl = sqlResource.getDefinition().getHttp()
-							.getResponse().getCacheControl();
-
-				} else {
-					cacheControl = config
-							.getProperty(Config.KEY_HTTP_CACHE_CONTROL);
-
-				}
-				if (RestUtil.stringNotNullOrEmpty(cacheControl)) {
-					response.addHeader("Cache-Control", cacheControl);
-				}
-				response.addHeader("Access-Control-Allow-Origin", "*");
 
 				RequestSQLParams requestSQLParams = genRequestSQLParams(
 						resName, filter, groupby, orderby, limit, offset);
@@ -385,7 +320,7 @@ public class ResResource {
 						result = sqlResource.read(requestSQLParams);
 					} catch (DataAccessException | CQLException
 							| FilterToSQLException e) {
-						writer.print(genThrowableMessage(e));
+						writer.print(genErrorMessage(e.getMessage()));
 						logger.error(e.getMessage());
 					}
 
@@ -401,22 +336,22 @@ public class ResResource {
 			}
 
 		} catch (UnsupportedEncodingException e) {
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 		}
 
 		catch (SqlResourceFactoryException e) {
 
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 
 		} catch (SqlResourceException e) {
 
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 
 		} catch (IOException e) {
-			logger.error(genThrowableMessage(e));
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != writer) {
@@ -465,20 +400,20 @@ public class ResResource {
 			}
 
 		} catch (JAXBException e) {
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 		} catch (SqlResourceFactoryException e) {
 
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 
 		} catch (SqlResourceException e) {
 
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 
 		} catch (IOException e) {
-			logger.error(genThrowableMessage(e));
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != writer) {
@@ -526,20 +461,20 @@ public class ResResource {
 			}
 
 		} catch (JAXBException e) {
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 		} catch (SqlResourceFactoryException e) {
 
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 
 		} catch (SqlResourceException e) {
 
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 
 		} catch (IOException e) {
-			logger.error(genThrowableMessage(e));
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != writer) {
@@ -579,14 +514,15 @@ public class ResResource {
 		catch (SqlResourceFactoryException e) {
 
 			try {
-				response.getOutputStream().print(genThrowableMessage(e));
+				response.getOutputStream().print(
+						genErrorMessage(e.getMessage()));
 			} catch (IOException e1) {
-				logger.error(genThrowableMessage(e1));
+				logger.error(genErrorMessage(e1.getMessage()));
 			}
 			logger.error(e.getMessage());
 
 		} catch (IOException e) {
-			logger.error(genThrowableMessage(e));
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != inputStream) {
@@ -594,7 +530,7 @@ public class ResResource {
 					inputStream.close();
 				} catch (IOException e) {
 
-					logger.error(genThrowableMessage(e));
+					logger.error(genErrorMessage(e.getMessage()));
 				}
 			}
 		}
@@ -614,12 +550,10 @@ public class ResResource {
 
 			writer = response.getWriter();
 
-			writer.print(config.getProperty(Config.KEY_RESPONSE_SUCCESS_PREFIX)
-					+ "Clean Result Cache Complete.");
+			writer.print(genSuccessMessage("Clean Result Cache Complete."));
 
 		} catch (IOException e) {
-			logger.error(config.getProperty(Config.KEY_RESPONSE_ERROR_PREFIX)
-					+ e.getMessage());
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != writer) {
@@ -644,12 +578,10 @@ public class ResResource {
 
 			writer = response.getWriter();
 
-			writer.print(config.getProperty(Config.KEY_RESPONSE_SUCCESS_PREFIX)
-					+ "Clean Resource Cache Complete.");
+			writer.print(genSuccessMessage("Clean Resource Cache Complete."));
 
 		} catch (IOException e) {
-			logger.error(config.getProperty(Config.KEY_RESPONSE_ERROR_PREFIX)
-					+ e.getMessage());
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != writer) {
@@ -673,17 +605,16 @@ public class ResResource {
 			writer = response.getWriter();
 			sqlResourceFactory.reloadSqlResource(resName);
 
-			writer.print(config.getProperty(Config.KEY_RESPONSE_SUCCESS_PREFIX)
-					+ "Reload [" + resName + "] Complete.");
+			writer.print(genSuccessMessage(new StringBuilder("Reload [")
+					.append(resName).append("] Complete.").toString()));
 		} catch (SqlResourceFactoryException e) {
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 		} catch (SqlResourceException e) {
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 		} catch (IOException e) {
-			logger.error(config.getProperty(Config.KEY_RESPONSE_ERROR_PREFIX)
-					+ e.getMessage());
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != writer) {
@@ -707,17 +638,15 @@ public class ResResource {
 			writer = response.getWriter();
 			sqlResourceFactory.reloadAllSqlResource();
 
-			writer.print(config.getProperty(Config.KEY_RESPONSE_SUCCESS_PREFIX)
-					+ "Reload ALL Resource Complete.");
+			writer.print(genSuccessMessage("Reload ALL Resource Complete."));
 		} catch (SqlResourceFactoryException e) {
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 		} catch (SqlResourceException e) {
-			writer.print(genThrowableMessage(e));
+			writer.print(genErrorMessage(e.getMessage()));
 			logger.error(e.getMessage());
 		} catch (IOException e) {
-			logger.error(config.getProperty(Config.KEY_RESPONSE_ERROR_PREFIX)
-					+ e.getMessage());
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != writer) {
@@ -749,8 +678,7 @@ public class ResResource {
 			}
 			mapper.writeValue(writer, treeRoot);
 		} catch (IOException e) {
-			logger.error(config.getProperty(Config.KEY_RESPONSE_ERROR_PREFIX)
-					+ e.getMessage());
+			logger.error(genErrorMessage(e.getMessage()));
 
 		} finally {
 			if (null != writer) {
@@ -760,13 +688,16 @@ public class ResResource {
 		}
 	}
 
-	private String genThrowableMessage(Throwable t) {
-		return config.getProperty(Config.KEY_RESPONSE_ERROR_PREFIX)
-				+ t.getMessage();
+	private String genErrorMessage(String s) {
+		return new StringBuilder(
+				config.getProperty(Config.KEY_RESPONSE_ERROR_PREFIX)).append(s)
+				.toString();
 	}
 
-	private String genErrorMessage(String s) {
-		return config.getProperty(Config.KEY_RESPONSE_ERROR_PREFIX) + s;
+	private String genSuccessMessage(String s) {
+		return new StringBuilder(
+				config.getProperty(Config.KEY_RESPONSE_SUCCESS_PREFIX)).append(
+				s).toString();
 	}
 
 	private RequestSQLParams genRequestSQLParams(String resName, String filter,
@@ -815,6 +746,58 @@ public class ResResource {
 									.getProperty(Config.KEY_CACHE_RESULT_EXPIRE_AFTER_WRITE)),
 							TimeUnit.SECONDS).build();
 		return cache;
+	}
+
+	private void processResponse(HttpServletResponse response,
+			SqlResource sqlResource, String output) {
+		// set CHARSET & ContentType
+		response.setCharacterEncoding(config
+				.getProperty(Config.KEY_RESPONSE_CHARSET));
+		response.setContentType(RestUtil.getContentType(output,
+				config.getProperty(Config.KEY_RESPONSE_CHARSET)));
+
+		String cacheControl = null;
+		String accessControl = null;
+		if (null != sqlResource
+				&& null != sqlResource.getDefinition().getHttp()) {
+
+			cacheControl = sqlResource.getDefinition().getHttp().getResponse()
+					.getCacheControl();
+
+			accessControl = sqlResource.getDefinition().getHttp().getResponse()
+					.getAccessControl();
+
+		}
+		if (null == cacheControl) {
+			cacheControl = config.getProperty(Config.KEY_HTTP_CACHE_CONTROL);
+		}
+
+		if (null == accessControl) {
+			accessControl = config.getProperty(Config.KEY_HTTP_ACCESS_CONTROL);
+		}
+
+		if (RestUtil.stringNotNullOrEmpty(cacheControl)) {
+			response.addHeader("Cache-Control", cacheControl);
+		}
+
+		if (RestUtil.stringNotNullOrEmpty(accessControl)) {
+			response.addHeader("Access-Control-Allow-Origin", accessControl);
+		}
+
+	}
+
+	private boolean csvUseHeader(SqlResource sqlResource) {
+		if (null != sqlResource
+				&& null != sqlResource.getDefinition().getHttp()
+				&& null != sqlResource.getDefinition().getHttp().getResponse()
+						.getCsvUseHeader()) {
+
+			return sqlResource.getDefinition().getHttp().getResponse()
+					.getCsvUseHeader();
+
+		}
+		return Boolean.valueOf(config
+				.getProperty(Config.KEY_RESPONSE_CSV_USE_HEADER));
 	}
 
 }
