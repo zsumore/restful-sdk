@@ -81,7 +81,15 @@ public class RestUtil {
 	}
 
 	public static Boolean stringNotNullOrEmpty(String s) {
-		return (null != s && !s.trim().equals(""));
+
+		if (null == s) {
+
+			return false;
+		}
+		if (s.trim().equals("")) {
+			return false;
+		}
+		return true;
 	}
 
 }

@@ -44,7 +44,7 @@ import com.google.common.collect.ListMultimap;
  *         &lt;element name="query" type="{http://restsql.org/schema}Query"/>
  *         &lt;element name="metadata" type="{http://restsql.org/schema}MetaData"/>
  *         &lt;element name="validatedAttribute" type="{http://restsql.org/schema}ValidatedAttribute" maxOccurs="unbounded" minOccurs="0"/>
- *         &lt;element name="http" type="{http://restsql.org/schema}HttpConfig" minOccurs="0"/>
+ *         &lt;element name="http" type="{http://restsql.org/schema}RestConfig" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -56,7 +56,7 @@ import com.google.common.collect.ListMultimap;
 @XmlRootElement(name = "sqlResource", namespace = "http://restsql.org/schema")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SqlResource", propOrder = { "description", "test", "query",
-		"metadata", "validatedAttribute", "http" })
+		"metadata", "validatedAttribute", "restConfig" })
 public class SqlResourceDefinition {
 	@XmlElement(required = false)
 	protected Test test;
@@ -69,7 +69,7 @@ public class SqlResourceDefinition {
 	@XmlElement(required = false)
 	protected List<ValidatedAttribute> validatedAttribute;
 	@XmlElement(required = false)
-	protected HttpConfig http;
+	protected RestConfig restConfig;
 
 	@XmlTransient
 	private ListMultimap<String, ValidatedAttribute> validatedAttributeMap;
@@ -317,25 +317,12 @@ public class SqlResourceDefinition {
 		return regexMap.get(key);
 	}
 
-	/**
-	 * Gets the value of the http property.
-	 * 
-	 * @return possible object is {@link HttpConfig }
-	 * 
-	 */
-	public HttpConfig getHttp() {
-		return http;
+	public RestConfig getRestConfig() {
+		return restConfig;
 	}
 
-	/**
-	 * Sets the value of the http property.
-	 * 
-	 * @param value
-	 *            allowed object is {@link HttpConfig }
-	 * 
-	 */
-	public void setHttp(HttpConfig value) {
-		this.http = value;
+	public void setRestConfig(RestConfig restConfig) {
+		this.restConfig = restConfig;
 	}
 
 }

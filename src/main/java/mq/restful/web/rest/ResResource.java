@@ -53,6 +53,7 @@ import com.google.common.cache.CacheBuilder;
 public class ResResource {
 
 	private final String ResourceNotExist = "请检查Resource Name,该Resource不存在.";
+	private final String CsvNoOneToMore = "CsvMapper不支持一对多关系.";
 
 	@Autowired
 	private SqlResourceFactory sqlResourceFactory;
@@ -124,21 +125,12 @@ public class ResResource {
 								.getParentReadColumns()) {
 							builder.addColumn(meta.getColumnLabel());
 						}
-						CsvSchema schema = builder
-								.build()
-								.withLineSeparator(
-										config.getProperty(Config.KEY_RESPONSE_CSV_LINE_SEPATATOR))
-								.withColumnSeparator(
-										config.getProperty(
-												Config.KEY_RESPONSE_CSV_COLUMN_SEPATATOR)
-												.trim().charAt(0));
-						if (csvUseHeader(sqlResource)) {
-							schema = schema.withHeader();
-						}
+						CsvSchema schema = processCsvSchema(sqlResource,
+								builder);
 						((CsvMapper) mapper).writer(schema).writeValue(writer,
 								result);
 					} else {
-						writer.print(genErrorMessage("CsvMapper不支持一对多关系."));
+						writer.print(genErrorMessage(CsvNoOneToMore));
 					}
 				} else {
 					mapper.writeValue(writer, result);
@@ -229,21 +221,12 @@ public class ResResource {
 								.getParentReadColumns()) {
 							builder.addColumn(meta.getColumnLabel());
 						}
-						CsvSchema schema = builder
-								.build()
-								.withLineSeparator(
-										config.getProperty(Config.KEY_RESPONSE_CSV_LINE_SEPATATOR))
-								.withColumnSeparator(
-										config.getProperty(
-												Config.KEY_RESPONSE_CSV_COLUMN_SEPATATOR)
-												.trim().charAt(0));
-						if (csvUseHeader(sqlResource)) {
-							schema = schema.withHeader();
-						}
+						CsvSchema schema = processCsvSchema(sqlResource,
+								builder);
 						((CsvMapper) mapper).writer(schema).writeValue(writer,
 								result);
 					} else {
-						writer.print(genErrorMessage("CsvMapper不支持一对多关系."));
+						writer.print(genErrorMessage(CsvNoOneToMore));
 					}
 				} else if (mapper instanceof XmlMapper) {
 					mapper.writeValue(writer, result);
@@ -759,13 +742,15 @@ public class ResResource {
 		String cacheControl = null;
 		String accessControl = null;
 		if (null != sqlResource
-				&& null != sqlResource.getDefinition().getHttp()) {
+				&& null != sqlResource.getDefinition().getRestConfig()
+				&& null != sqlResource.getDefinition().getRestConfig()
+						.getHttpResponse()) {
 
-			cacheControl = sqlResource.getDefinition().getHttp().getResponse()
-					.getCacheControl();
+			cacheControl = sqlResource.getDefinition().getRestConfig()
+					.getHttpResponse().getCacheControl();
 
-			accessControl = sqlResource.getDefinition().getHttp().getResponse()
-					.getAccessControl();
+			accessControl = sqlResource.getDefinition().getRestConfig()
+					.getHttpResponse().getAccessControl();
 
 		}
 		if (null == cacheControl) {
@@ -786,18 +771,47 @@ public class ResResource {
 
 	}
 
-	private boolean csvUseHeader(SqlResource sqlResource) {
+	private CsvSchema processCsvSchema(SqlResource sqlResource, Builder builder) {
+		String lineSeparator = config
+				.getProperty(Config.KEY_RESPONSE_CSV_LINE_SEPATATOR);
+		char columnSeparator = config
+				.getProperty(Config.KEY_RESPONSE_CSV_COLUMN_SEPATATOR).trim()
+				.charAt(0);
 		if (null != sqlResource
-				&& null != sqlResource.getDefinition().getHttp()
-				&& null != sqlResource.getDefinition().getHttp().getResponse()
-						.getCsvUseHeader()) {
+				&& null != sqlResource.getDefinition().getRestConfig()
+				&& null != sqlResource.getDefinition().getRestConfig()
+						.getCsvConfig()) {
+			if (RestUtil.stringNotNullOrEmpty(sqlResource.getDefinition()
+					.getRestConfig().getCsvConfig().getLineSeparator())) {
+				lineSeparator = sqlResource.getDefinition().getRestConfig()
+						.getCsvConfig().getLineSeparator()
+						.replaceAll("\\\\n", "\n").replaceAll("\\\\r", "\r");
+			}
 
-			return sqlResource.getDefinition().getHttp().getResponse()
-					.getCsvUseHeader();
+			if (RestUtil.stringNotNullOrEmpty(sqlResource.getDefinition()
+					.getRestConfig().getCsvConfig().getColumnSeparator())) {
+				columnSeparator = sqlResource.getDefinition().getRestConfig()
+						.getCsvConfig().getColumnSeparator().trim().charAt(0);
+			}
+		}
+
+		CsvSchema schema = builder.build().withLineSeparator(lineSeparator)
+				.withColumnSeparator(columnSeparator);
+
+		if (null != sqlResource
+				&& null != sqlResource.getDefinition().getRestConfig()
+				&& null != sqlResource.getDefinition().getRestConfig()
+						.getCsvConfig()) {
+			if (null != sqlResource.getDefinition().getRestConfig()
+					.getCsvConfig().getUseHeader()
+					&& sqlResource.getDefinition().getRestConfig()
+							.getCsvConfig().getUseHeader()) {
+				return schema.withHeader();
+			}
 
 		}
-		return Boolean.valueOf(config
-				.getProperty(Config.KEY_RESPONSE_CSV_USE_HEADER));
-	}
 
+		return schema;
+
+	}
 }

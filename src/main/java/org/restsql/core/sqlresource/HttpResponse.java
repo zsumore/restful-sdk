@@ -42,9 +42,6 @@ public class HttpResponse {
 	@XmlAttribute(name = "accessControl")
 	protected String accessControl;
 
-	@XmlAttribute(name = "csvUseHeader")
-	protected Boolean csvUseHeader;
-
 	/**
 	 * Gets the value of the cacheControl property.
 	 * 
@@ -74,12 +71,10 @@ public class HttpResponse {
 		this.accessControl = accessControl;
 	}
 
-	public Boolean getCsvUseHeader() {
-		return csvUseHeader;
-	}
-
-	public void setCsvUseHeader(Boolean csvUseHeader) {
-		this.csvUseHeader = csvUseHeader;
+	@Override
+	public String toString() {
+		return "HttpResponse [cacheControl=" + cacheControl
+				+ ", accessControl=" + accessControl + "]";
 	}
 
 }

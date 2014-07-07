@@ -68,7 +68,7 @@ public class ObjectFactory {
 	public Query createQuery() {
 		return new Query();
 	}
-	
+
 	/**
 	 * Create an instance of {@link Test }
 	 * 
@@ -102,11 +102,11 @@ public class ObjectFactory {
 	}
 
 	/**
-	 * Create an instance of {@link HttpConfig }
+	 * Create an instance of {@link RestConfig }
 	 * 
 	 */
-	public HttpConfig createHttpConfig() {
-		return new HttpConfig();
+	public RestConfig createRestConfig() {
+		return new RestConfig();
 	}
 
 	/**
@@ -115,6 +115,14 @@ public class ObjectFactory {
 	 */
 	public HttpResponse createHttpResponse() {
 		return new HttpResponse();
+	}
+
+	/**
+	 * Create an instance of {@link CsvConfig }
+	 * 
+	 */
+	public CsvConfig createCsvConfig() {
+		return new CsvConfig();
 	}
 
 	/**
