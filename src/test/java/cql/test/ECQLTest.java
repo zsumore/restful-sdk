@@ -19,7 +19,7 @@ public class ECQLTest {
 			FilterToSQLException, UnsupportedEncodingException {
 		// TODO Auto-generated method stub
 
-		String filterStr = "'59288' = station_id";
+		String filterStr = "datetime between 2014-08-11T00:00:00 and 2014-08-12T00:00:00";
 
 		MyFilterToSQL vistor = new MyFilterToSQL();
 

@@ -436,16 +436,20 @@ public class BaseFilterToSQL implements SqlVisitor {
 			throws RuntimeException {
 		LOGGER.finer("exporting PropertyIsBetween");
 
-		Expression expr = (Expression) filter.getExpression();
-		Expression lowerbounds = (Expression) filter.getLowerBoundary();
-		Expression upperbounds = (Expression) filter.getUpperBoundary();
+		Expression expr = filter.getExpression();
+		Literal lowerbounds = (Literal) filter.getLowerBoundary();
+		Literal upperbounds = (Literal) filter.getUpperBoundary();
 
 		Class context;
 		AttributeDescriptor attType = (AttributeDescriptor) expr
 				.evaluate(featureType);
 		if (attType != null) {
 			context = attType.getType().getBinding();
+
+		} else if (null != lowerbounds && lowerbounds.getValue() != null) {
+			context = lowerbounds.getValue().getClass();
 		} else {
+
 			// assume it's a string?
 			context = String.class;
 		}
@@ -714,8 +718,8 @@ public class BaseFilterToSQL implements SqlVisitor {
 
 		Expression left = filter.getExpression1();
 		Expression right = filter.getExpression2();
-		
-		//System.out.println(right.toString());
+
+		// System.out.println(right.toString());
 		Class leftContext = null, rightContext = null;
 		if (left instanceof PropertyName) {
 			// aha! It's a propertyname, we should get the class and pass it in
@@ -724,7 +728,7 @@ public class BaseFilterToSQL implements SqlVisitor {
 					.evaluate(featureType);
 			if (attType != null) {
 				rightContext = attType.getType().getBinding();
-				
+
 			}
 		} else if (left instanceof Function) {
 			// check for a function return type
@@ -760,7 +764,7 @@ public class BaseFilterToSQL implements SqlVisitor {
 				}
 			}
 		}
-		//System.out.println(matchCase);
+		// System.out.println(matchCase);
 
 		String type = (String) extraData;
 
@@ -768,21 +772,20 @@ public class BaseFilterToSQL implements SqlVisitor {
 			if (matchCase) {
 				if (leftContext != null && isBinaryExpression(left)) {
 					writeBinaryExpression(left, leftContext);
-					
 
 				} else {
 					left.accept(this, leftContext);
-					
+
 				}
 
 				out.write(" " + type + " ");
 
 				if (rightContext != null && isBinaryExpression(right)) {
 					writeBinaryExpression(right, rightContext);
-					
+
 				} else {
 					right.accept(this, rightContext);
-					
+
 				}
 			} else {
 				// wrap both sides in "lower"
@@ -1369,22 +1372,22 @@ public class BaseFilterToSQL implements SqlVisitor {
 	public Object visit(Literal expression, Object context)
 			throws RuntimeException {
 		LOGGER.finer("exporting LiteralExpression");
-		//System.out.println(expression.getValue().getClass());
+		// System.out.println(expression.getValue().getClass());
 		// type to convert the literal to
 		Class target = null;
 		if (context instanceof Class) {
 			target = (Class) context;
-			
+
 		}
-		if(null==target&&null!=expression){
-			
-			target=expression.getValue().getClass();
+		if (null == target && null != expression) {
+
+			target = expression.getValue().getClass();
 		}
 
 		try {
 			// evaluate the expression
 			Object literal = evaluateLiteral(expression, target);
-			//System.out.println(literal.getClass());
+			// System.out.println(literal.getClass());
 			// handle geometry case
 			if (literal instanceof Geometry) {
 				// call this method for backwards compatibility with subclasses
@@ -1393,9 +1396,9 @@ public class BaseFilterToSQL implements SqlVisitor {
 				// write out the literal allowing subclasses to override this
 				// behaviour (for writing out dates and the like using the BDMS
 				// custom functions)
-				//System.out.println(literal.getClass());
+				// System.out.println(literal.getClass());
 				writeLiteral(literal);
-				
+
 			}
 
 		} catch (IOException e) {
@@ -1421,7 +1424,7 @@ public class BaseFilterToSQL implements SqlVisitor {
 				}
 			} else {
 				literal = expression.evaluate(null, target);
-				
+
 			}
 		}
 
@@ -1470,7 +1473,7 @@ public class BaseFilterToSQL implements SqlVisitor {
 			out.write("NULL");
 		} else if (literal instanceof Number || literal instanceof Boolean) {
 			out.write(String.valueOf(literal));
-			
+
 		} else if (literal instanceof Date) {
 			String valueDate = getDateFormat().format(literal).replaceAll("'",
 					"''");
