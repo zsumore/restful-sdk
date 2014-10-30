@@ -210,16 +210,24 @@ public class SqlResourceImpl implements SqlResource {
 				objectNode.put(column, (Integer) value);
 			}
 		} else if (value instanceof String) {
-			if (null != definition.getReplacement(column)
-					&& null != definition.getRegex(column)) {
+			if (null != definition.getStringReplacementList(column)
+					&& definition.getStringReplacementList(column).size() > 0) {
+				int size = definition.getStringReplacementList(column).size();
 
-				objectNode.put(column, ((String) value).replaceAll(
-						definition.getRegex(column),
-						definition.getReplacement(column)));
-			} else {
+				for (int i = 0; i < size; i++) {
 
-				objectNode.put(column, (String) value);
+					value = ((String) value).replaceAll(
+							definition.getStringReplacementList(column).get(i)
+									.getRegex(), definition
+									.getStringReplacementList(column).get(i)
+									.getReplacement());
+
+				}
+
 			}
+
+			objectNode.put(column, (String) value);
+
 		} else if (value instanceof Boolean) {
 			objectNode.put(column, (Boolean) value);
 		} else if (value instanceof Date) {

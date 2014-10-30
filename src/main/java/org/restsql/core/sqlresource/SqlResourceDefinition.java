@@ -89,6 +89,9 @@ public class SqlResourceDefinition {
 	@XmlTransient
 	private Map<String, String> nullValueMap;
 
+	@XmlTransient
+	private ListMultimap<String, StringReplacement> stringReplacementMap;
+
 	/**
 	 * Gets the value of the query property.
 	 * 
@@ -172,11 +175,19 @@ public class SqlResourceDefinition {
 	public ListMultimap<String, ValidatedAttribute> getValidatedAttributeMap() {
 		if (null == validatedAttributeMap) {
 			validatedAttributeMap = ArrayListMultimap.create();
+			stringReplacementMap = ArrayListMultimap.create();
 
 			if (null != validatedAttribute && validatedAttribute.size() > 0) {
 				for (ValidatedAttribute v : validatedAttribute) {
 
 					validatedAttributeMap.put(v.getName(), v);
+
+					if (v.getRegex() != null) {
+						stringReplacementMap.put(
+								v.getName(),
+								new StringReplacement(v.getRegex(), v
+										.getReplacement()));
+					}
 				}
 			}
 		}
@@ -259,6 +270,15 @@ public class SqlResourceDefinition {
 		}
 
 		return replacementMap.get(key);
+	}
+
+	public List<StringReplacement> getStringReplacementList(String key) {
+
+		if (null == stringReplacementMap) {
+			getValidatedAttributeMap();
+		}
+
+		return stringReplacementMap.get(key);
 	}
 
 	public String getAttributeType(String key) {

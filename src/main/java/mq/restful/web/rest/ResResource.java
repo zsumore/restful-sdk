@@ -523,7 +523,7 @@ public class ResResource {
 	@RequestMapping(value = "/clean/result", method = RequestMethod.GET)
 	public void clearResultCache(HttpServletRequest request,
 			HttpServletResponse response) {
-		getCache().cleanUp();
+		getCache().invalidateAll();
 		PrintWriter writer = null;
 
 		try {
@@ -550,7 +550,7 @@ public class ResResource {
 	public void clearResourceCache(HttpServletRequest request,
 			HttpServletResponse response) {
 		sqlResourceFactory.cleanAllSqlResource();
-		getCache().cleanUp();
+		getCache().invalidateAll();
 
 		PrintWriter writer = null;
 
@@ -577,7 +577,7 @@ public class ResResource {
 	@RequestMapping(value = "/reload/{resName:.+}", method = RequestMethod.GET)
 	public void reloadDefinition(@PathVariable final String resName,
 			HttpServletRequest request, HttpServletResponse response) {
-		getCache().cleanUp();
+		getCache().invalidateAll();
 		PrintWriter writer = null;
 
 		try {
@@ -610,7 +610,7 @@ public class ResResource {
 	@RequestMapping(value = "/reload/all", method = RequestMethod.GET)
 	public void reloadAllDefinition(HttpServletRequest request,
 			HttpServletResponse response) {
-		getCache().cleanUp();
+		getCache().invalidateAll();
 		PrintWriter writer = null;
 
 		try {
