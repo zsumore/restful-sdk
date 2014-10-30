@@ -22,10 +22,12 @@ import org.restsql.core.TableMetaData;
  * @author Mark Sawers
  * @see ColumnMetaData
  */
-//TODO: remove dependency on this class, probably by moving setters to the interface
+// TODO: remove dependency on this class, probably by moving setters to the
+// interface
 
-@XmlType(name = "TableMetaData", namespace = "http://restsql.org/schema", propOrder = { "databaseName",
-		"tableName", "tableAlias", "qualifiedTableName", "tableRole", "columnList", "primaryKeyNames" })
+@XmlType(name = "TableMetaData", namespace = "http://restsql.org/schema", propOrder = {
+		"databaseName", "tableName", "tableAlias", "qualifiedTableName",
+		"tableRole", "columnList", "primaryKeyNames" })
 public class TableMetaDataImpl implements TableMetaData {
 	@XmlElementWrapper(name = "columns", required = true)
 	@XmlElement(name = "column", type = ColumnMetaDataImpl.class, required = true)
@@ -60,8 +62,9 @@ public class TableMetaDataImpl implements TableMetaData {
 	public TableMetaDataImpl() {
 	}
 
-	public TableMetaDataImpl(final String tableName, final String qualifedTableName,
-			final String databaseName, final TableRole tableRole) {
+	public TableMetaDataImpl(final String tableName,
+			final String qualifedTableName, final String databaseName,
+			final TableRole tableRole) {
 		this.tableName = tableName;
 		this.tableAlias = tableName;
 		qualifiedTableName = qualifedTableName;
@@ -121,4 +124,5 @@ public class TableMetaDataImpl implements TableMetaData {
 	void setTableAlias(String tableAlias) {
 		this.tableAlias = tableAlias;
 	}
+
 }

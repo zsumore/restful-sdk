@@ -10,10 +10,12 @@ import org.geotools.filter.temporal.DuringImpl;
 import org.geotools.filter.temporal.TEqualsImpl;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
+import org.geotools.filter.text.ecql.SqlECQL;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.Filter;
+import org.restsql.core.impl.BaseFilterToSQL;
 
 public class TestCQL {
 
@@ -27,14 +29,15 @@ public class TestCQL {
 
 	@Test
 	public void test() throws CQLException, FilterToSQLException {
-		String filterStr = "datetime DURING 2014-03-21T14:00:00Z/2014-03-21T14:00:01Z";
+		String filterStr = "in (56789,345)";
 		
 		//String filterStr = "datetime=2014-03-21T14:00:00Z";
 		
 		//String filterClause = filterStr.replaceAll("\\+", " ");
 		
 		// System.out.println(filterClause);
-		Filter filter= ECQL.toFilter(filterStr);
+		Filter filter= SqlECQL.toFilter(filterStr);
+		System.out.println(filter);
 		
 		/*System.out.println(filter.getClass());
 		System.out.println(filter.toString());
@@ -51,13 +54,16 @@ public class TestCQL {
 		System.out.println(l.getType());
 		System.out.println(l.getValue().toString());*/
 		
-		MyFilterToSQL vistor=new MyFilterToSQL();
+		BaseFilterToSQL vistor=new BaseFilterToSQL();
+		//vistor.setFIDMapper(mapper);
 		String sql=vistor.encodeToString(filter);
 		
 		System.out.println(sql);
 		
 		
-		String b="station_id LIKE 'G22%'";
+		
+		
+		/*String b="station_id LIKE 'G22%'";
 		Filter filter2= ECQL.toFilter(b);
 		
 		
@@ -68,9 +74,9 @@ public class TestCQL {
 		
 		String c="dateFormat('yyyy',datetime)";
 		Filter filter3= ECQL.toFilter(c);
-		System.out.println(filter3.toString());
+		System.out.println(filter3.toString());*/
 		
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 }

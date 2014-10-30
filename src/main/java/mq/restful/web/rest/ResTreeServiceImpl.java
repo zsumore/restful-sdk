@@ -31,6 +31,7 @@ public class ResTreeServiceImpl implements ResTreeService {
 		return treeModel.getChildren();
 	}
 
+	//不访问"."开头的文件夹如：".git"
 	private void visitDirTree(final String path, final TreeModel tree) {
 		File dir = new File(path);
 
@@ -61,7 +62,8 @@ public class ResTreeServiceImpl implements ResTreeService {
 
 				tree.getChildren().add(leaf);
 
-			} else if (dirFileList[i].isDirectory()) {
+			} else if (dirFileList[i].isDirectory()
+					&& !dirFileList[i].getName().startsWith(".")) {
 				TreeModel dict = new TreeModel();
 				dict.setLabel(dirFileList[i].getName());
 				if (tree.getParent().equals(".")) {

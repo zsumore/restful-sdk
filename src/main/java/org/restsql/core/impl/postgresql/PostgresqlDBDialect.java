@@ -1,14 +1,14 @@
 package org.restsql.core.impl.postgresql;
 
+import org.geotools.filter.text.ecql.MySqlVisitor;
 import org.restsql.core.DBDialect;
 import org.restsql.core.SqlResourceMetaData;
-import org.restsql.core.SqlVisitor;
 
 public class PostgresqlDBDialect implements DBDialect {
 
 	private SqlResourceMetaData sqlResourceMetaData;
 
-	private SqlVisitor sqlVisitor;
+	private MySqlVisitor sqlVisitor;
 
 	public PostgresqlDBDialect() {
 
@@ -25,7 +25,7 @@ public class PostgresqlDBDialect implements DBDialect {
 	}
 
 	@Override
-	public SqlVisitor getCustomVisitor() {
+	public MySqlVisitor getCustomVisitor() {
 
 		return this.sqlVisitor;
 	}

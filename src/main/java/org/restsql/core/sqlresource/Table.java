@@ -53,6 +53,10 @@ public class Table {
     protected String alias;
     @XmlAttribute(name = "role", required = true)
     protected String role;
+    @XmlAttribute(name = "pkey" , required = false)
+    private String pkey;
+    @XmlAttribute(name = "pkeyType" , required = false)
+    private String pkeyType="String";
 
     /**
      * Gets the value of the name property.
@@ -125,5 +129,24 @@ public class Table {
     public void setRole(String value) {
         this.role = value;
     }
+
+
+	public String getPkey() {
+		return pkey;
+	}
+
+	public void setPkey(String pkey) {
+		this.pkey = pkey;
+	}
+
+	public String getPkeyType() {
+		return pkeyType;
+	}
+
+	public void setPkeyType(String pkeyType) {
+		this.pkeyType = pkeyType;
+	}
+    
+    
 
 }

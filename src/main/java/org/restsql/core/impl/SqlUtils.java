@@ -29,7 +29,7 @@ public class SqlUtils {
 
 	// private static final MyFilterToSQL filterToSQL = new MyFilterToSQL();
 
-	private static final FilterFactory ff = CommonFactoryFinder
+	public static final FilterFactory ff = CommonFactoryFinder
 			.getFilterFactory();
 
 	// private static DBDialect postgresql, mysql;

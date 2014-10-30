@@ -553,6 +553,7 @@ public abstract class AbstractSqlResourceMetaData implements
 				}
 				table = new TableMetaDataImpl(tableName, qualifiedTableName,
 						databaseName, TableRole.valueOf(tableDef.getRole()));
+
 				tableMap.put(column.getQualifiedTableName(), table);
 				tables.add(table);
 

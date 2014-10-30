@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
@@ -23,9 +24,12 @@ import org.geotools.filter.FilterCapabilities;
 import org.geotools.filter.FunctionImpl;
 import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.capability.FunctionNameImpl;
+import org.geotools.filter.text.ecql.MySqlVisitor;
+import org.geotools.filter.text.ecql.SQLPrimaryKey;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JoinPropertyName;
 import org.geotools.jdbc.PrimaryKey;
+import org.geotools.jdbc.PrimaryKeyColumn;
 import org.geotools.util.ConverterFactory;
 import org.geotools.util.Converters;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -96,7 +100,7 @@ import org.restsql.core.SqlVisitor;
 import com.vividsolutions.jts.geom.Geometry;
 
 @SuppressWarnings({ "deprecation", "rawtypes", "unchecked", "unused" })
-public class BaseFilterToSQL implements SqlVisitor {
+public class BaseFilterToSQL implements MySqlVisitor {
 
 	protected String dateFormatPattern = "yyyy-MM-dd HH:mm:ss";
 
@@ -890,45 +894,68 @@ public class BaseFilterToSQL implements SqlVisitor {
 	 * @throws RuntimeException
 	 *             If there's a problem writing output
 	 * 
+	 * 
+	 *             public Object visit(Id filter, Object extraData) { if (mapper
+	 *             == null) { throw new RuntimeException(
+	 *             "Must set a fid mapper before trying to encode FIDFilters");
+	 *             }
+	 * 
+	 *             Set ids = filter.getIdentifiers();
+	 * 
+	 *             LOGGER.finer("Exporting FID=" + ids);
+	 * 
+	 *             // prepare column name array String[] colNames = new
+	 *             String[mapper.getColumnCount()];
+	 * 
+	 *             for (int i = 0; i < colNames.length; i++) { colNames[i] =
+	 *             mapper.getColumnName(i); }
+	 * 
+	 *             try { if (ids.size() > 1) { out.write("("); } for (Iterator i
+	 *             = ids.iterator(); i.hasNext();) { Identifier id =
+	 *             (Identifier) i.next(); Object[] attValues =
+	 *             mapper.getPKAttributes(id.toString());
+	 * 
+	 *             out.write("(");
+	 * 
+	 *             for (int j = 0; j < attValues.length; j++) {
+	 *             out.write(escapeName(colNames[j])); out.write(" = '");
+	 *             out.write(attValues[j].toString()); // DJB: changed this to
+	 *             // attValues[j] from // attValues[i]. out.write("'");
+	 * 
+	 *             if (j < (attValues.length - 1)) { out.write(" AND "); } }
+	 * 
+	 *             out.write(")");
+	 * 
+	 *             if (i.hasNext()) { out.write(" OR "); } } if (ids.size() > 1)
+	 *             { out.write(")"); } } catch (java.io.IOException e) { throw
+	 *             new RuntimeException(IO_ERROR, e); }
+	 * 
+	 *             return extraData; }
 	 */
+
 	public Object visit(Id filter, Object extraData) {
-		if (mapper == null) {
-			throw new RuntimeException(
-					"Must set a fid mapper before trying to encode FIDFilters");
-		}
 
 		Set ids = filter.getIdentifiers();
 
-		LOGGER.finer("Exporting FID=" + ids);
-
-		// prepare column name array
-		String[] colNames = new String[mapper.getColumnCount()];
-
-		for (int i = 0; i < colNames.length; i++) {
-			colNames[i] = mapper.getColumnName(i);
-		}
+		Boolean isString = sqlPrimaryKey.getType().equalsIgnoreCase("String");
 
 		try {
-			if (ids.size() > 1) {
-				out.write("(");
-			}
 			for (Iterator i = ids.iterator(); i.hasNext();) {
 				Identifier id = (Identifier) i.next();
-				Object[] attValues = mapper.getPKAttributes(id.toString());
 
 				out.write("(");
 
-				for (int j = 0; j < attValues.length; j++) {
-					out.write(escapeName(colNames[j]));
-					out.write(" = '");
-					out.write(attValues[j].toString()); // DJB: changed this to
-														// attValues[j] from
-														// attValues[i].
-					out.write("'");
+				out.write(sqlPrimaryKey.getName());
+				out.write(" = ");
 
-					if (j < (attValues.length - 1)) {
-						out.write(" AND ");
-					}
+				if (isString) {
+					out.write("'");
+				}
+
+				out.write(id.getID().toString());
+
+				if (isString) {
+					out.write("'");
 				}
 
 				out.write(")");
@@ -937,9 +964,7 @@ public class BaseFilterToSQL implements SqlVisitor {
 					out.write(" OR ");
 				}
 			}
-			if (ids.size() > 1) {
-				out.write(")");
-			}
+
 		} catch (java.io.IOException e) {
 			throw new RuntimeException(IO_ERROR, e);
 		}
@@ -1800,6 +1825,20 @@ public class BaseFilterToSQL implements SqlVisitor {
 	public boolean fullySupports(Filter filter) {
 
 		return getCapabilities().fullySupports(filter);
+	}
+
+	private SQLPrimaryKey sqlPrimaryKey = new SQLPrimaryKey("id", "String");
+
+	@Override
+	public void setSQLPrimaryKey(SQLPrimaryKey key) {
+		this.sqlPrimaryKey = key;
+
+	}
+
+	@Override
+	public SQLPrimaryKey getSQLPrimaryKey() {
+
+		return this.sqlPrimaryKey;
 	}
 
 }

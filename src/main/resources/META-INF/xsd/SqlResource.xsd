@@ -96,6 +96,15 @@
 				</restriction>
 			</simpleType>
 		</attribute>
+		<attribute name="pkey" type="string" use="optional"></attribute>
+		<attribute name="pkeyType" use="optional">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="String"></enumeration>
+					<enumeration value="Numeric"></enumeration>
+				</restriction>
+			</simpleType>
+		</attribute>
 	</complexType>
 	<complexType name="RestConfig">
 		<sequence>

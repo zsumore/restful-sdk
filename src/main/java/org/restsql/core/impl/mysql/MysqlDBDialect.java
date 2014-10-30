@@ -1,14 +1,14 @@
 package org.restsql.core.impl.mysql;
 
+import org.geotools.filter.text.ecql.MySqlVisitor;
 import org.restsql.core.DBDialect;
 import org.restsql.core.SqlResourceMetaData;
-import org.restsql.core.SqlVisitor;
 
 public class MysqlDBDialect implements DBDialect {
 
 	private SqlResourceMetaData sqlResourceMetaData;
 
-	private SqlVisitor sqlVisitor;
+	private MySqlVisitor sqlVisitor;
 
 	public MysqlDBDialect() {
 
@@ -25,7 +25,7 @@ public class MysqlDBDialect implements DBDialect {
 	}
 
 	@Override
-	public SqlVisitor getCustomVisitor() {
+	public MySqlVisitor getCustomVisitor() {
 
 		return this.sqlVisitor;
 	}

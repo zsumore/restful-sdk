@@ -8,17 +8,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mq.restful.util.RestUtil;
+
 import org.geotools.data.jdbc.FilterToSQLException;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.filter.text.ecql.ECQL;
+import org.opengis.filter.Filter;
 import org.restsql.core.ColumnMetaData;
 import org.restsql.core.Config;
+import org.restsql.core.DBDialect;
 import org.restsql.core.RequestSQLParams;
 import org.restsql.core.SqlResource;
 import org.restsql.core.SqlResourceFactory;
 import org.restsql.core.SqlResourceMetaData;
 import org.restsql.core.SqlStruct;
 import org.restsql.core.TableMetaData.TableRole;
+import org.restsql.core.impl.mysql.MysqlDBDialect;
+import org.restsql.core.impl.postgresql.PostgresqlDBDialect;
 import org.restsql.core.sqlresource.SqlResourceDefinition;
+import org.restsql.core.sqlresource.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -39,6 +47,8 @@ public class SqlResourceImpl implements SqlResource {
 
 	Logger logger;
 
+	DBDialect dbDialect;
+
 	public SqlResourceImpl(final String name,
 			final SqlResourceDefinition definition,
 			final SqlResourceMetaData metaData, SqlResourceFactory factory) {
@@ -51,6 +61,28 @@ public class SqlResourceImpl implements SqlResource {
 		logger = LoggerFactory.getLogger("[" + name + "]");
 
 		objectMapper = new ObjectMapper();
+
+		// dbDialect=getDBDialectByName();
+		dbDialect = getDBDialectByName(this.sqlResourceFactory.getConfig()
+				.getProperty(Config.KEY_DATABASE_TYPE));
+
+		int size = this.definition.getMetadata().getTable().size();
+		for (int i = 0; i < size; i++) {
+			Table table = this.definition.getMetadata().getTable().get(i);
+			if (table.getRole().equalsIgnoreCase("Parent")) {
+				dbDialect.getCustomVisitor().getSQLPrimaryKey()
+						.setTableName(table.getName());
+				if (table.getPkey() != null) {
+					dbDialect.getCustomVisitor().getSQLPrimaryKey()
+							.setName(table.getPkey());
+				}
+				if (table.getPkeyType() != null) {
+					dbDialect.getCustomVisitor().getSQLPrimaryKey()
+							.setType(table.getPkeyType());
+				}
+				break;
+			}
+		}
 
 	}
 
@@ -73,11 +105,16 @@ public class SqlResourceImpl implements SqlResource {
 	public String buildSQL(RequestSQLParams params) throws CQLException,
 			FilterToSQLException {
 
+		String filterClause = null;
+		if (RestUtil.stringNotNullOrEmpty(params.getFilter())) {
+			Filter filter = ECQL.toFilter(params.getFilter(), SqlUtils.ff);
+
+			filterClause = this.dbDialect.getCustomVisitor().encodeToString(
+					filter);
+		}
+
 		SqlStruct struct = new SqlStruct(this.definition.getQuery().getValue(),
-				SqlUtils.buildSQLFilterClause(
-						params.getFilter(),
-						this.sqlResourceFactory.getConfig().getProperty(
-								Config.KEY_DATABASE_TYPE)));
+				filterClause);
 
 		if (null != params.getLimit())
 			struct.setLimit(params.getLimit());
@@ -324,6 +361,20 @@ public class SqlResourceImpl implements SqlResource {
 	public SqlResourceFactory getSqlResourceFactory() {
 
 		return this.sqlResourceFactory;
+	}
+
+	private DBDialect getDBDialectByName(String name) {
+
+		if (name.equalsIgnoreCase(Config.POSTGRESQL_DB_DIALECT)) {
+
+			return new PostgresqlDBDialect();
+
+		} else if (name.equalsIgnoreCase(Config.MYSQL_DB_DIALECT)) {
+
+			return new MysqlDBDialect();
+
+		}
+		return null;
 	}
 
 }
