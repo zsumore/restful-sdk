@@ -102,6 +102,8 @@
 				<restriction base="string">
 					<enumeration value="String"></enumeration>
 					<enumeration value="Numeric"></enumeration>
+					<enumeration value="Datetime"></enumeration>
+					<enumeration value="Custom"></enumeration>
 				</restriction>
 			</simpleType>
 		</attribute>

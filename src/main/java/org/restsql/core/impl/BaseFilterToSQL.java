@@ -937,7 +937,7 @@ public class BaseFilterToSQL implements MySqlVisitor {
 
 		Set ids = filter.getIdentifiers();
 
-		Boolean isString = sqlPrimaryKey.getType().equalsIgnoreCase("String");
+		Boolean isNumeric = sqlPrimaryKey.getType().equalsIgnoreCase("Numeric");
 
 		try {
 			for (Iterator i = ids.iterator(); i.hasNext();) {
@@ -948,13 +948,13 @@ public class BaseFilterToSQL implements MySqlVisitor {
 				out.write(sqlPrimaryKey.getName());
 				out.write(" = ");
 
-				if (isString) {
+				if (!isNumeric) {
 					out.write("'");
 				}
 
 				out.write(id.getID().toString());
 
-				if (isString) {
+				if (!isNumeric) {
 					out.write("'");
 				}
 
