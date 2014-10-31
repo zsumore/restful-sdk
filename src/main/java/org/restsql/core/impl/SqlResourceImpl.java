@@ -146,14 +146,14 @@ public class SqlResourceImpl implements SqlResource {
 			return buildReadResultsHierachicalCollection(resultSet);
 		} else {
 
-			return buildReadResultsFlatCollection(resultSet);
+			return buildReadResultsFlatCollection(resultSet, params);
 
 		}
 
 	}
 
 	private List<JsonNode> buildReadResultsFlatCollection(
-			final SqlRowSet resultSet) {
+			final SqlRowSet resultSet, final RequestSQLParams params) {
 		List<JsonNode> listNode = new ArrayList<JsonNode>();
 		while (resultSet.next()) {
 
@@ -161,7 +161,19 @@ public class SqlResourceImpl implements SqlResource {
 
 			for (final ColumnMetaData columnData : metaData.getAllReadColumns()) {
 				if (!columnData.isNonqueriedForeignKey()) {
-					addJsonNodeRow(objectNode, columnData, resultSet);
+					boolean addNode = true;
+					if (params.getVisible() != null
+							&& params.getVisible().length() > 0) {
+						if (columnData.getColumnNumber() <= params.getVisible()
+								.length()
+								&& params.getVisible().charAt(
+										columnData.getColumnNumber()-1) == '0') {
+							addNode=false;
+						}
+
+					}
+					if (addNode)
+						addJsonNodeRow(objectNode, columnData, resultSet);
 				}
 
 			}

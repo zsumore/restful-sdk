@@ -2,7 +2,7 @@ package org.restsql.core;
 
 public class RequestSQLParams {
 
-	private String filter, orderby, resName, groupby;
+	private String filter, orderby, resName, groupby, visible;
 	private Integer limit = -1, offset = -1;
 
 	// public RequestSQLParams(String resName, String filter, String orderby,
@@ -69,11 +69,13 @@ public class RequestSQLParams {
 		this.groupby = groupby;
 	}
 
-	@Override
-	public String toString() {
-		return "RequestSQLParams [filter=" + filter + ", orderby=" + orderby
-				+ ", resName=" + resName + ", groupby=" + groupby + ", limit="
-				+ limit + ", offset=" + offset + "]";
+	public String getVisible() {
+		return visible;
+	}
+
+	public void setVisible(String vis) {
+		if (vis != null)
+			this.visible = vis.trim();
 	}
 
 	@Override
@@ -86,6 +88,7 @@ public class RequestSQLParams {
 		result = prime * result + ((offset == null) ? 0 : offset.hashCode());
 		result = prime * result + ((orderby == null) ? 0 : orderby.hashCode());
 		result = prime * result + ((resName == null) ? 0 : resName.hashCode());
+		result = prime * result + ((visible == null) ? 0 : visible.hashCode());
 		return result;
 	}
 
@@ -128,7 +131,20 @@ public class RequestSQLParams {
 				return false;
 		} else if (!resName.equals(other.resName))
 			return false;
+		if (visible == null) {
+			if (other.visible != null)
+				return false;
+		} else if (!visible.equals(other.visible))
+			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "RequestSQLParams [filter=" + filter + ", orderby=" + orderby
+				+ ", resName=" + resName + ", groupby=" + groupby
+				+ ", visible=" + visible + ", limit=" + limit + ", offset="
+				+ offset + "]";
 	}
 
 }

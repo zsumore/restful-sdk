@@ -80,6 +80,7 @@ public class ResResource {
 			@RequestParam(value = "_offset", required = false) Integer offset,
 			@RequestParam(value = "_output", required = false) String output,
 			@RequestParam(value = "_groupby", required = false) String groupby,
+			@RequestParam(value = "_visible", required = false) String visible,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		PrintWriter writer = null;
@@ -97,7 +98,7 @@ public class ResResource {
 			} else {
 
 				RequestSQLParams requestSQLParams = genRequestSQLParams(
-						resName, filter, groupby, orderby, limit, offset);
+						resName, filter, groupby, orderby, limit, offset,visible);
 
 				Object result = getCache().getIfPresent(requestSQLParams);
 
@@ -175,6 +176,7 @@ public class ResResource {
 			@RequestParam(value = "_offset", required = false) Integer offset,
 			@RequestParam(value = "_output", required = false) String output,
 			@RequestParam(value = "_groupby", required = false) String groupby,
+			@RequestParam(value = "_visible", required = false) String visible,
 			HttpServletRequest request, HttpServletResponse response) {
 
 		PrintWriter writer = null;
@@ -193,7 +195,7 @@ public class ResResource {
 			} else {
 
 				RequestSQLParams requestSQLParams = genRequestSQLParams(
-						resName, filter, groupby, orderby, limit, offset);
+						resName, filter, groupby, orderby, limit, offset,visible);
 
 				Object result = getCache().getIfPresent(requestSQLParams);
 
@@ -270,6 +272,7 @@ public class ResResource {
 			@RequestParam(value = "_offset", required = false) Integer offset,
 			@RequestParam(value = "_output", required = false) String output,
 			@RequestParam(value = "_groupby", required = false) String groupby,
+			@RequestParam(value = "_visible", required = false) String visible,
 			@RequestParam(value = "callback", required = false) String callback,
 			HttpServletRequest request, HttpServletResponse response) {
 
@@ -293,7 +296,7 @@ public class ResResource {
 			} else {
 
 				RequestSQLParams requestSQLParams = genRequestSQLParams(
-						resName, filter, groupby, orderby, limit, offset);
+						resName, filter, groupby, orderby, limit, offset,visible);
 
 				Object result = getCache().getIfPresent(requestSQLParams);
 
@@ -684,7 +687,7 @@ public class ResResource {
 	}
 
 	private RequestSQLParams genRequestSQLParams(String resName, String filter,
-			String groupby, String orderby, Integer limit, Integer offset)
+			String groupby, String orderby, Integer limit, Integer offset,String visible)
 			throws UnsupportedEncodingException {
 
 		RequestSQLParams params = new RequestSQLParams();
@@ -712,6 +715,10 @@ public class ResResource {
 
 		if (null != offset) {
 			params.setOffset(offset);
+		}
+		
+		if(null!=visible){
+			params.setVisible(visible);
 		}
 
 		return params;
