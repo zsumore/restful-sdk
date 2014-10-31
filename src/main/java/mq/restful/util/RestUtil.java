@@ -3,6 +3,7 @@ package mq.restful.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -39,8 +40,11 @@ public class RestUtil {
 			objectMapperMap = new HashMap<String, ObjectMapper>();
 
 			final XmlMapper xmlMapper = new XmlMapper();
+			xmlMapper.configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
 			final CsvMapper csvMapper = new CsvMapper();
+			csvMapper.configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
 			final ObjectMapper jsonMapper = new ObjectMapper();
+			jsonMapper.configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
 			objectMapperMap.put("json", jsonMapper);
 			objectMapperMap.put("csv", csvMapper);
 			objectMapperMap.put("xml", xmlMapper);
@@ -62,10 +66,13 @@ public class RestUtil {
 
 			final XmlMapper xmlMapper = new XmlMapper();
 			xmlMapper.enable(SerializationFeature.INDENT_OUTPUT);
+			xmlMapper.configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
 			final CsvMapper csvMapper = new CsvMapper();
 			csvMapper.enable(SerializationFeature.INDENT_OUTPUT);
+			csvMapper.configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
 			final ObjectMapper jsonMapper = new ObjectMapper();
 			jsonMapper.enable(SerializationFeature.INDENT_OUTPUT);
+			jsonMapper.configure(Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
 			prettyObjectMapperMap.put("json", jsonMapper);
 			prettyObjectMapperMap.put("csv", csvMapper);
 			prettyObjectMapperMap.put("xml", xmlMapper);
