@@ -77,9 +77,9 @@ public class SqlStruct {
 		String tmp = SqlUtils.removeWhitespaceFromSql(main.toString());
 		String tmpGroupBy = null;
 		String tmpMain = null;
-		if (tmp.indexOf("GROUP BY") > 0 || tmp.indexOf("group by") > 0) {
-			int max = tmp.indexOf("GROUP BY");
-			int min = tmp.indexOf("group by");
+		if (tmp.indexOf("GROUP") > 0 || tmp.indexOf("group") > 0) {
+			int max = tmp.indexOf("GROUP");
+			int min = tmp.indexOf("group");
 			int index = max > min ? max : min;
 			tmpMain = tmp.substring(0, index);
 			tmpGroupBy = tmp.substring(index);
