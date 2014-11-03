@@ -98,7 +98,8 @@ public class ResResource {
 			} else {
 
 				RequestSQLParams requestSQLParams = genRequestSQLParams(
-						resName, filter, groupby, orderby, limit, offset,visible);
+						resName, filter, groupby, orderby, limit, offset,
+						visible);
 
 				Object result = getCache().getIfPresent(requestSQLParams);
 
@@ -122,10 +123,9 @@ public class ResResource {
 				if (mapper instanceof CsvMapper) {
 					if (!sqlResource.getMetaData().isHierarchical()) {
 						Builder builder = CsvSchema.builder();
-						for (ColumnMetaData meta : sqlResource.getMetaData()
-								.getParentReadColumns()) {
-							builder.addColumn(meta.getColumnLabel());
-						}
+
+						processBuilder(builder, sqlResource, visible);
+
 						CsvSchema schema = processCsvSchema(sqlResource,
 								builder);
 						((CsvMapper) mapper).writer(schema).writeValue(writer,
@@ -166,6 +166,26 @@ public class ResResource {
 
 	}
 
+	private void processBuilder(Builder builder, SqlResource sqlResource,
+			String visible) {
+		for (ColumnMetaData columnData : sqlResource.getMetaData()
+				.getParentReadColumns()) {
+			if (!columnData.isNonqueriedForeignKey()) {
+				boolean addNode = true;
+				if (visible != null && visible.length() > 0) {
+					if (columnData.getColumnNumber() <= visible.length()
+							&& visible.charAt(columnData.getColumnNumber() - 1) == '0') {
+						addNode = false;
+					}
+
+				}
+				if (addNode)
+					builder.addColumn(columnData.getColumnLabel());
+			}
+		}
+
+	}
+
 	MQPrettyPrinter pp = new MQPrettyPrinter();
 
 	@RequestMapping(value = "/pretty/{resName:.+}", method = RequestMethod.GET)
@@ -195,7 +215,8 @@ public class ResResource {
 			} else {
 
 				RequestSQLParams requestSQLParams = genRequestSQLParams(
-						resName, filter, groupby, orderby, limit, offset,visible);
+						resName, filter, groupby, orderby, limit, offset,
+						visible);
 
 				Object result = getCache().getIfPresent(requestSQLParams);
 
@@ -219,10 +240,8 @@ public class ResResource {
 				if (mapper instanceof CsvMapper) {
 					if (!sqlResource.getMetaData().isHierarchical()) {
 						Builder builder = CsvSchema.builder();
-						for (ColumnMetaData meta : sqlResource.getMetaData()
-								.getParentReadColumns()) {
-							builder.addColumn(meta.getColumnLabel());
-						}
+						processBuilder(builder, sqlResource, visible);
+
 						CsvSchema schema = processCsvSchema(sqlResource,
 								builder);
 						((CsvMapper) mapper).writer(schema).writeValue(writer,
@@ -296,7 +315,8 @@ public class ResResource {
 			} else {
 
 				RequestSQLParams requestSQLParams = genRequestSQLParams(
-						resName, filter, groupby, orderby, limit, offset,visible);
+						resName, filter, groupby, orderby, limit, offset,
+						visible);
 
 				Object result = getCache().getIfPresent(requestSQLParams);
 
@@ -687,8 +707,8 @@ public class ResResource {
 	}
 
 	private RequestSQLParams genRequestSQLParams(String resName, String filter,
-			String groupby, String orderby, Integer limit, Integer offset,String visible)
-			throws UnsupportedEncodingException {
+			String groupby, String orderby, Integer limit, Integer offset,
+			String visible) throws UnsupportedEncodingException {
 
 		RequestSQLParams params = new RequestSQLParams();
 		params.setResName(resName);
@@ -716,8 +736,8 @@ public class ResResource {
 		if (null != offset) {
 			params.setOffset(offset);
 		}
-		
-		if(null!=visible){
+
+		if (null != visible) {
 			params.setVisible(visible);
 		}
 

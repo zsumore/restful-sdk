@@ -12,7 +12,7 @@ import mq.restful.util.RestUtil;
 
 import org.geotools.data.jdbc.FilterToSQLException;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.text.ecql.ECQL;
+import org.geotools.filter.text.ecql.SqlECQL;
 import org.opengis.filter.Filter;
 import org.restsql.core.ColumnMetaData;
 import org.restsql.core.Config;
@@ -107,7 +107,7 @@ public class SqlResourceImpl implements SqlResource {
 
 		String filterClause = null;
 		if (RestUtil.stringNotNullOrEmpty(params.getFilter())) {
-			Filter filter = ECQL.toFilter(params.getFilter(), SqlUtils.ff);
+			Filter filter = SqlECQL.toFilter(params.getFilter(), SqlUtils.ff);
 
 			filterClause = this.dbDialect.getCustomVisitor().encodeToString(
 					filter);
@@ -167,8 +167,8 @@ public class SqlResourceImpl implements SqlResource {
 						if (columnData.getColumnNumber() <= params.getVisible()
 								.length()
 								&& params.getVisible().charAt(
-										columnData.getColumnNumber()-1) == '0') {
-							addNode=false;
+										columnData.getColumnNumber() - 1) == '0') {
+							addNode = false;
 						}
 
 					}

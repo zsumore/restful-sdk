@@ -29,7 +29,7 @@ public class TestCQL {
 
 	@Test
 	public void test() throws CQLException, FilterToSQLException {
-		String filterStr = "in (56789,345)";
+		String filterStr = "s.a = 100";
 		
 		//String filterStr = "datetime=2014-03-21T14:00:00Z";
 		
