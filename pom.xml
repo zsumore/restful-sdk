@@ -16,7 +16,8 @@
 		<jackson2.version>2.5.0</jackson2.version>
 		<woodstox.version>4.4.1</woodstox.version>
 		<spring.version>4.1.4.RELEASE</spring.version>
-		<druid.version>1.0.12</druid.version>
+		<druid.version>1.0.11</druid.version>
+		
 		<geotools.version>12.2</geotools.version>
 		<validation-api.version>1.0.0.GA</validation-api.version>
 		<hibernate-validator.version>4.1.0.Final</hibernate-validator.version>
