@@ -104,6 +104,10 @@ public class BaseFilterToSQL implements MySqlVisitor {
 
 	protected String dateFormatPattern = "yyyy-MM-dd HH:mm:ss";
 
+	public static final String NUMERIC_TYPE = "Numeric";
+
+	public static final String STRING_TYPE = "String";
+
 	protected DateFormat dateFormat;
 
 	public DateFormat getDateFormat() {
@@ -937,13 +941,15 @@ public class BaseFilterToSQL implements MySqlVisitor {
 
 		Set ids = filter.getIdentifiers();
 
-		Boolean isNumeric = sqlPrimaryKey.getType().equalsIgnoreCase("Numeric");
+		Boolean isNumeric = sqlPrimaryKey.getType().equalsIgnoreCase(
+				NUMERIC_TYPE);
 
 		try {
+
+			out.write("(");
+
 			for (Iterator i = ids.iterator(); i.hasNext();) {
 				Identifier id = (Identifier) i.next();
-
-				out.write("(");
 
 				out.write(sqlPrimaryKey.getName());
 				out.write(" = ");
@@ -958,12 +964,12 @@ public class BaseFilterToSQL implements MySqlVisitor {
 					out.write("'");
 				}
 
-				out.write(")");
-
 				if (i.hasNext()) {
 					out.write(" OR ");
 				}
 			}
+
+			out.write(")");
 
 		} catch (java.io.IOException e) {
 			throw new RuntimeException(IO_ERROR, e);

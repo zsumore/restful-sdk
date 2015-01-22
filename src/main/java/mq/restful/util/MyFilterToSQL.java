@@ -101,6 +101,7 @@ public class MyFilterToSQL extends FilterToSQL {
      * @throws RuntimeException If there's a problem writing output
      *
      */
+	@SuppressWarnings("rawtypes")
 	@Override
     public Object visit(Id filter, Object extraData) {
         if (mapper == null) {

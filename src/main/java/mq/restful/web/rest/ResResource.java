@@ -282,6 +282,75 @@ public class ResResource {
 
 	}
 
+	@RequestMapping(value = "/sql/{resName:.+}", method = RequestMethod.GET)
+	public void getSql(@PathVariable final String resName,
+			@RequestParam(value = "_filter", required = false) String filter,
+			@RequestParam(value = "_orderby", required = false) String orderby,
+			@RequestParam(value = "_limit", required = false) Integer limit,
+			@RequestParam(value = "_offset", required = false) Integer offset,
+			@RequestParam(value = "_output", required = false) String output,
+			@RequestParam(value = "_groupby", required = false) String groupby,
+			@RequestParam(value = "_visible", required = false) String visible,
+			HttpServletRequest request, HttpServletResponse response) {
+
+		PrintWriter writer = null;
+
+		try {
+
+			writer = response.getWriter();
+
+			SqlResource sqlResource = sqlResourceFactory
+					.getSqlResource(resName);
+
+			processResponse(response, sqlResource, output);
+
+			if (null == sqlResource) {
+				writer.print(genErrorMessage(ResourceNotExist));
+			} else {
+
+				RequestSQLParams requestSQLParams = genRequestSQLParams(
+						resName, filter, groupby, orderby, limit, offset,
+						visible);
+				writer.print(sqlResource.buildSQL(requestSQLParams));
+
+			}
+		} catch (CQLException e) {
+			writer.print(genErrorMessage(e.getMessage()));
+			logger.error(e.getMessage());
+		}
+
+		catch (FilterToSQLException e) {
+
+			writer.print(genErrorMessage(e.getMessage()));
+			logger.error(e.getMessage());
+
+		}
+
+		catch (UnsupportedEncodingException e) {
+			writer.print(genErrorMessage(e.getMessage()));
+			logger.error(e.getMessage());
+		} catch (SqlResourceFactoryException e) {
+
+			writer.print(genErrorMessage(e.getMessage()));
+			logger.error(e.getMessage());
+
+		} catch (SqlResourceException e) {
+
+			writer.print(genErrorMessage(e.getMessage()));
+			logger.error(e.getMessage());
+
+		} catch (IOException e) {
+			logger.error(genErrorMessage(e.getMessage()));
+
+		} finally {
+			if (null != writer) {
+				writer.flush();
+				writer.close();
+			}
+		}
+
+	}
+
 	@RequestMapping(value = "/jsonp/{resName:.+}", method = RequestMethod.GET)
 	public void getJsonp(
 			@PathVariable final String resName,
