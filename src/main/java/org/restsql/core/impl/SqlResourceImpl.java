@@ -108,9 +108,12 @@ public class SqlResourceImpl implements SqlResource {
 		String filterClause = null;
 		if (RestUtil.stringNotNullOrEmpty(params.getFilter())) {
 			Filter filter = SqlECQL.toFilter(params.getFilter(), SqlUtils.ff);
+			
+			logger.info(filter.toString());
 
 			filterClause = this.dbDialect.getCustomVisitor().encodeToString(
 					filter);
+			logger.info(filterClause.toString());
 		}
 
 		SqlStruct struct = new SqlStruct(this.definition.getQuery().getValue(),
